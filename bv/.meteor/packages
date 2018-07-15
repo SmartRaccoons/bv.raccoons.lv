@@ -26,3 +26,5 @@ johanbrook:publication-collector  # Test a Meteor publication by collecting its 
 tap:i18n
 kadira:dochead
 accounts-facebook
+accounts-ui
+service-configuration

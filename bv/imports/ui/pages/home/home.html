@@ -1,4 +1,11 @@
 <template name="App_home">
-  {{> hello}}
-  {{> info}}
+  <h1>Beach Volleyball Counter</h1>
+  {{#if currentUser}}
+    Logged in as {{> loginButtons}}
+    <ul>
+      <a href='/app/games'>My games</a>
+    </ul>
+  {{else}}
+    {{> loginButtons}}
+  {{/if}}
 </template>
