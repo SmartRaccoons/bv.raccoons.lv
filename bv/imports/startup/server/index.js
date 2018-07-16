@@ -1,14 +1,12 @@
 import config from '../../../config.js';
 
 
-ServiceConfiguration.configurations.remove({
+ServiceConfiguration.configurations.upsert({
     service: "facebook"
-});
-
-
-ServiceConfiguration.configurations.insert({
-    service: "facebook",
+}, {
+  $set: {
     appId: config.facebook.id,
     secret: config.facebook.secret
+  }
 });
 import './register-api.js';
