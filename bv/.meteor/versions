@@ -46,6 +46,7 @@ jquery@1.11.11
 kadira:blaze-layout@2.3.0
 kadira:dochead@1.5.0
 kadira:flow-router@2.12.1
+konecty:mongo-counter@0.0.5_3
 launch-screen@1.1.1
 less@2.7.12
 livedata@1.0.18
@@ -69,6 +70,7 @@ modules-runtime@0.10.2
 mongo@1.5.1
 mongo-dev-server@1.1.0
 mongo-id@1.0.7
+mongo-livedata@1.0.12
 npm-mongo@3.0.7
 oauth@1.2.3
 oauth2@1.2.0

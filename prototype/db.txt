@@ -1,0 +1,30 @@
+team
+	id
+	owner
+	name
+player
+	id
+	owner
+	team
+	name
+tournament
+	id
+	owner
+	name
+game
+	id
+	owner
+	tournament
+	serve [0/1, 0/1]
+	switch (false/true)
+	teams [team_id, team_id]
+	sets [[21, 19], [19, 21], [15, 13]]
+	created (Date)
+game_set
+	id
+	game
+	set (0, 1, 2)
+	point (null/0/1)
+	added (Date)
+	action (null, T, SE, SA, AE, AK, B, BE)
+	action_team (null, [0/1], [0/1, 0/1])

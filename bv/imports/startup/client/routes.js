@@ -18,21 +18,31 @@ FlowRouter.notFound = {
 FlowRouter.route('/', {
   name: 'App.home',
   action() {
-    BlazeLayout.render('App_body', { main: 'App_home' });
+    BlazeLayout.render('App_body', {
+      main: 'App_home',
+      app_games: FlowRouter.path('App.game'),
+    });
   },
 });
 
-login_required = FlowRouter.group({
+
+app_games = FlowRouter.group({
+  prefix: '/app/game',
   triggersEnter: [function(){
     if (!Meteor.loggingIn() && !Meteor.userId()){
-      FlowRouter.go('App.home')
+      FlowRouter.go('App.home');
     }
   }]
 })
+app_games.route('/', {
+  name: 'App.game',
+  action() {
+    BlazeLayout.render('App_body', { main: 'App_game' });
+  }
+});
+app_games.route('/:id', {
+  name: 'App.game.edit',
+  action() {
 
-// login_required.router('/app/games', {
-//   name: 'App.games',
-//   action() {
-//     BlazeLayout.render('App_body', { main: 'App_games' });
-//   }
-// });
+  }
+});

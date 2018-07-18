@@ -1,2 +1,18 @@
-<template name="App_games">
+<template name='App_game'>
+  <button class='create'>create new</button>
+  <ul>
+    {{#each games}}
+       {{> game}}
+    {{/each}}
+  </ul>
+
+</template>
+
+<template name='game'>
+  <li>
+    <a href='{{ link }}'>
+      {{ created }}
+    </a>
+    <button class='delete'>&times;</button>
+  </li>
 </template>
