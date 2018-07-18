@@ -1,6 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check } from 'meteor/check';
+import { settings } from './settings';
 
 
 export const Game = new Mongo.Collection('game');
@@ -30,8 +31,11 @@ permissions = {
 };
 
 if (Meteor.isServer) {
-  Meteor.publish('game', function () {
+  Meteor.publish('game.private', function () {
     return Game.find({owner: this.userId}, {sort: {id: -1}});
+  });
+  Meteor.publish('user', function () {
+    return Meteor.users.find(this.userId);
   });
   import { incrementCounter } from '../counter/model';
   Meteor.methods({
@@ -48,27 +52,16 @@ if (Meteor.isServer) {
       });
       return id;
     }),
+    'user.update.settings': permissions.login(function (value) {
+      Meteor.users.update(this.userId, {
+        $set: {
+          settings: settings(value)
+        }
+      });
+    }),
   });
 }
 Meteor.methods({
-  // 'game.owned': function(owner) {
-  //   console.info(owner);
-  //   return [{id: 1}]
-  //   // return Game.find({owner: owner}, {sort: {id: -1}});
-  // },
-  // 'game.insert': permissions.login(function() {
-  //   id = incrementCounter('game');
-  //   Game.insert({
-  //     id: id,
-  //     created: new Date(),
-  //     owner: this.userId,
-  //     serve: 0,
-  //     'switch': false,
-  //     teams: [null, null],
-  //     sets: [[0, 0]],
-  //   });
-  //   return id;
-  // }),
   'game.remove': permissions.login(function(id){
     check(id, String);
     game = Game.findOne(id);
