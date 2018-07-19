@@ -1,6 +1,6 @@
 var values = {
   'advantage': [true, false],
-  'switch': ['sum 7/5', 'first 11/8', 'set'],
+  'switch': ['sum 1/3', 'first 1/2', 'set'],
   'sets': {default: 3, range: [1, 5]},
   'set_points': {default: 21, range: [1, 51]},
   'set_last_points': {default: 15, range: [1, 51]},
@@ -35,19 +35,7 @@ var values_callbacks = Object.keys(values).reduce(function (acc, value){
   }
   return acc;
 }, {});
-var value_check = function (obj, v) {
-  var check;
-   if (Array.isArray(values[v])) {
-     check = function (v){
-
-     }
-   } else {
-
-   }
-  if (obj && obj[v]) {
-
-  }
-}
+exports.values = values;
 exports.settings = function (v) {
   return Object.keys(values).reduce(function (acc, value){
     if (v && value in v) {

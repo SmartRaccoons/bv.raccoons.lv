@@ -1,18 +1,20 @@
 <template name='App_game_edit'>
-  edit {{ id }}
-<div>
-  <input name='advantage' type='checkbox' checked={{ settings.advantage }} /> 2 points advantage
-  switch on
-  <select>
-    <option>sum</option>
-    <option>first</option>
-    <option>set</option>
-  </select>
-  <input type='integer' value='7' />
-</div>
-<div>
-  <input type='number' value='3' />
-  sets to <input type='number' value='21' />
-  last set <input type='number' value='15' />
-</div>
+  <div>
+    <input name='advantage' type='checkbox' checked={{ settings.advantage }} /> 2 points advantage
+    switch on
+    <select name='switch'>
+      {{#each value in settings_values.switch}}
+        <option value='{{ value }}' selected={{ equal value settings.switch }} >{{ value }}</option>
+      {{/each}}
+    </select>
+  </div>
+  <div>
+    <select name='sets'>
+      {{#each value in sets}}
+        <option value='{{ value }}' selected={{ equal value settings.sets }}>{{ value }}</option>
+      {{/each}}
+    </select>
+    sets to <input name='set_points' type='number' value='{{ settings.set_points }}' />
+    last set <input name='set_last_points' type='number' value='{{ settings.set_last_points }}' />
+  </div>
 </template>
