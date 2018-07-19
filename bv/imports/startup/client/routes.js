@@ -9,6 +9,8 @@ import '../../ui/pages/game/game.edit.js';
 import '../../ui/pages/not-found/not-found.js';
 
 
+BlazeLayout.setRoot('body');
+
 FlowRouter.notFound = {
   action() {
     BlazeLayout.render('App_body', { main: 'App_notFound' });
