@@ -1,5 +1,5 @@
 import './game.edit.html';
-import { Game} from '../../../api/game/model'
+import { Game } from '../../../api/game/model'
 import { Template } from 'meteor/templating';
 import { settings, values } from '../../../api/game/settings';
 
@@ -24,7 +24,7 @@ Template.App_game_edit.helpers({
     return v1 === v2;
   },
   'sets'() {
-    return [1, 2, 3, 4, 5]
+     return Array.from({length: values.sets.range[1] - values.sets.range[0] + 1},(v,k)=> values.sets.range[0] + k)
   },
 });
 

@@ -17,16 +17,21 @@ Game.deny({
 permissions = {
   login: function (fn){
     return function () {
-      if (! this.userId) {
+      if (!this.userId) {
         throw new Meteor.Error('not-authorized');
       }
       return fn.apply(this, arguments)
     }
   },
-  owner: function (collection) {
-    if (!(collection && collection.owner === this.userId)) {
-      throw new Meteor.Error('not-authorized');
-    }
+  owner: function (Collection, fn) {
+    return permissions.login(function (id) {
+        check(id, String);
+        ob = Collection.findOne(id);
+        if (!(ob && ob.owner === this.userId)) {
+          throw new Meteor.Error('not-authorized');
+        }
+        return fn.apply(this, Array.from(arguments).concat([ob]));
+    });
   },
 };
 
@@ -62,10 +67,10 @@ if (Meteor.isServer) {
   });
 }
 Meteor.methods({
-  'game.remove': permissions.login(function(id){
-    check(id, String);
-    game = Game.findOne(id);
-    permissions.owner.apply(this, [game]);
+  'game.update': permissions.owner(Game, function (id, ob) {
+
+  }),
+  'game.remove': permissions.owner(Game, function(id) {
     Game.remove(id);
   }),
 });
