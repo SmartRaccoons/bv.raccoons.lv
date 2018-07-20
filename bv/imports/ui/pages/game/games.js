@@ -34,6 +34,6 @@ Template.game.helpers({
 });
 Template.game.events({
   'click .delete'() {
-    call('game.remove', this._id);
+    call('game.remove', {_id: this._id});
   },
 });

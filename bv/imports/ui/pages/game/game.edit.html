@@ -1,23 +1,10 @@
 <template name='App_game_edit'>
-  <div class='game'>
-    <div class='game-settings'>
-      <input name='advantage' type='checkbox' checked={{ settings.advantage }} /> 2 points advantage
+  {{ created }}
+  {{#with game}}
 
-      switch on
-      <select name='switch'>
-        {{#each value in settings_values.switch}}
-          <option value='{{ value }}' selected={{ equal value settings.switch }} >{{ value }}</option>
-        {{/each}}
-      </select>
-      <br />
-      <select name='sets'>
-        {{#each value in sets}}
-          <option value='{{ value }}' selected={{ equal value settings.sets }}>{{ value }}</option>
-        {{/each}}
-      </select>
-      sets to <input name='set_points' type='number' value='{{ settings.set_points }}' />
-      last set <input name='set_last_points' type='number' value='{{ settings.set_last_points }}' />
-    </div>
+  {{/with}}
+  <div class='game' {{ switch_attr switch}}>
+    {{ > App_game_edit_settings settings}}
     {{ > App_game_edit_team team='0' }}
     <div class='game-score'>
       <button class='game-score-switch'>switch</button>
@@ -25,6 +12,26 @@
       <button class='game-score-undo'>undo</button>
     </div>
     {{ > App_game_edit_team team='1' }}
+  </div>
+</template>
+
+<template name='App_game_edit_settings'>
+  <div class='game-settings'>
+    <input name='advantage' type='checkbox' checked={{ advantage }} /> 2 points advantage
+    switch on
+    <select name='switch'>
+      {{#each value in settings_values.switch}}
+        <option value='{{ value }}' selected={{ equal value switch }} >{{ value }}</option>
+      {{/each}}
+    </select>
+    <br />
+    <select name='sets'>
+      {{#each value in sets}}
+        <option value='{{ value }}' selected={{ equal value sets }}>{{ value }}</option>
+      {{/each}}
+    </select>
+    sets to <input name='set_points' type='number' value='{{ set_points }}' />
+    last set <input name='set_last_points' type='number' value='{{ set_last_points }}' />
   </div>
 </template>
 

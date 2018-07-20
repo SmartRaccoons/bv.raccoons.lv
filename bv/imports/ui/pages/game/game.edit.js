@@ -6,9 +6,8 @@ import { settings, values } from '../../../api/game/settings';
 
 Template.App_game_edit.onCreated(function () {
   Meteor.subscribe('user');
-  var id = parseInt(this.data.id());
   this.autorun(() => {
-    this.subscribe('game.private', id);
+    this.subscribe('game.private', parseInt(this.data.id()));
   });
 });
 
@@ -18,19 +17,33 @@ var settings_get = function () {
 };
 
 Template.App_game_edit.helpers({
+  // settings_values: values,
+  'sets'() {
+     return Array.from({length: values.sets.range[1] - values.sets.range[0] + 1},(v,k)=> values.sets.range[0] + k)
+  },
+  'game'() {
+    console.info(Game.findOne({id: parseInt(this.id())}), this.id());
+    return Game.findOne({id: this.id()});
+  },
+  'switch_attr'(v) {
+    console.info(v);
+    if (v) {
+      return {'data-switch': ''};
+    }
+  },
+});
+
+Template.App_game_edit_settings.helpers({
   settings: settings_get,
   settings_values: values,
   'equal'(v1, v2) {
     return v1 === v2;
   },
-  'sets'() {
-     return Array.from({length: values.sets.range[1] - values.sets.range[0] + 1},(v,k)=> values.sets.range[0] + k)
-  },
-});
+})
 
-Template.App_game_edit.events(Object.keys(values).reduce(function (acc, pr) {
-  acc['change [name="' + pr + '"]'] = (function(pr) {
-    return function (event) {
+Template.App_game_edit.events(Object.keys(values).reduce((acc, pr)=> {
+  acc['change [name="' + pr + '"]'] = ((pr)=> {
+    return (event)=> {
       var params = {};
       if (Array.isArray(values[pr])) {
         if(values[pr].length === 2) {
@@ -46,3 +59,8 @@ Template.App_game_edit.events(Object.keys(values).reduce(function (acc, pr) {
   })(pr);
   return acc;
 }, {}));
+Template.App_game_edit.events({
+  'click .game-score-switch'() {
+    Meteor.call('game.update.switch', {id: parseInt(this.id())});
+  }
+});

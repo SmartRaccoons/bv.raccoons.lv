@@ -24,9 +24,15 @@ permissions = {
     }
   },
   owner: function (Collection, fn) {
-    return permissions.login(function (id) {
-        check(id, String);
-        ob = Collection.findOne(id);
+    return permissions.login(function (params) {
+        var ob;
+        if (params && params._id) {
+          check(params._id, String);
+          ob = Collection.findOne(params._id);
+        } else if (params && params.id) {
+          check(params.id, Number);
+          ob = Collection.findOne({id: params.id});
+        }
         if (!(ob && ob.owner === this.userId)) {
           throw new Meteor.Error('not-authorized');
         }
@@ -67,10 +73,10 @@ if (Meteor.isServer) {
   });
 }
 Meteor.methods({
-  'game.update': permissions.owner(Game, function (id, ob) {
-
+  'game.update.switch': permissions.owner(Game, function (_, ob) {
+    Game.update(ob._id, { $set: { 'switch': !ob.switch } });
   }),
-  'game.remove': permissions.owner(Game, function(id) {
-    Game.remove(id);
+  'game.remove': permissions.owner(Game, function(_, ob) {
+    Game.remove(ob._id);
   }),
 });
