@@ -45,13 +45,38 @@
         }
       }
     }
+    &[data-serve='0'], &[data-serve='1'] {
+      .game-team-head::after {
+        display: block;
+        background: #ffc107;
+      }
+    &[data-serve='0'] .game-team-player[data-player='0'],
+    &[data-serve='1'] .game-team-player[data-player='1'] {
+        .game-team-player-name button {
+          border-color: #ffc107;
+          background: #ffc107;
+        }
+        button[data-action='se'], button[data-action='sa'] {
+          display: block;
+        }
+      }
+    }
     &-head {
       grid-column: ~"1/3";
       position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #eee;
+      background: #efefef;
+      &::after {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 2%;
+        content: '';
+        display: none;
+      }
       &-score {
         font-size: 7em;
       }
@@ -62,12 +87,12 @@
       }
       &-info {
         position: absolute;
-        top: 0;
+        top: 2%;
         font-size: 1.7em;
       }
       &-name {
         position: absolute;
-        bottom: 0;
+        bottom: 2%;
         font-size: 1.5em;
       }
     }
@@ -89,13 +114,40 @@
         height: 100%/7;
         margin: 0;
         padding: 0;
-        text-align: center;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        button {
-          width: 100%;
-          height: 90%;
+      }
+      button {
+        width: 100%;
+        height: 90%;
+        display: block;
+        position: relative;
+        background: #fff;
+        border-color: #28a745;
+        color: #28a745;
+        &::after {
+          display: none;
+          content: '';
+          position: absolute;
+          right: 0;
+          top: 0;
+          width: 10%;
+          height: 100%;
+          background: #28a745;
+        }
+        &[data-action='se'], &[data-action='sa'] {
+          display: none;
+        }
+        &[data-action='se'],
+        &[data-action='ae'],
+        &[data-action='be'],
+        &[data-action='e'] {
+          border-color: #dc3545;
+          color: #dc3545;
+          &::after {
+            background: #dc3545;
+          }
+        }
+        &[data-last]::after {
+          display: block;
         }
       }
     }
