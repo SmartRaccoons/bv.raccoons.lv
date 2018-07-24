@@ -1,5 +1,6 @@
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { BlazeLayout } from 'meteor/kadira:blaze-layout';
+import { DocHead } from 'meteor/kadira:dochead'
 
 // Import needed templates
 import '../../ui/layouts/body/body.js';
@@ -10,6 +11,7 @@ import '../../ui/pages/not-found/not-found.js';
 
 
 BlazeLayout.setRoot('body');
+DocHead.addMeta({name: 'viewport', content: 'width=device-width, user-scalable=no'});
 
 FlowRouter.notFound = {
   action() {

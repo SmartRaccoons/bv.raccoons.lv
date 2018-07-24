@@ -8,6 +8,17 @@ html, body {
 }
 body {
   font-family: arial;
+  font-size: 10px;
+}
+@media (min-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+}
+@media (min-width: 640px) {
+  body {
+    font-size: 18px;
+  }
 }
 footer {
   height: 2em;
@@ -19,4 +30,16 @@ footer {
   a:first-child {
     margin: 0
   }
+}
+input, select {
+  font-size: 1em;
+}
+input[type="number"] {
+  width: 3em;
+}
+
+button, .button {
+  font-size: 1.3em;
+  padding: 0;
+  text-align: center;
 }

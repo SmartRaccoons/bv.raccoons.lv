@@ -1,27 +1,29 @@
 <template name='App_game_edit'>
-  <div class='game' {{ switch_attr game.switch}}>
-    <div class='game-settings'>
-      <input name='advantage' type='checkbox' checked={{ settings.advantage }} /> 2 points advantage
-      switch on
-      <select name='switch'>
-        {{#each value in settings_values.switch}}
-          <option value='{{ value }}' selected={{ equal value settings.switch }} >{{ value }}</option>
-        {{/each}}
-      </select>
-      <br />
-      <select name='sets'>
-        {{#each value in sets}}
-          <option value='{{ value }}' selected={{ equal value settings.sets }}>{{ value }}</option>
-        {{/each}}
-      </select>
-      sets to <input name='set_points' type='number' value='{{ settings.set_points }}' />
-      last set <input name='set_last_points' type='number' value='{{ settings.set_last_points }}' />
-    </div>
 
+  <div class='game-settings'>
+    2 points adv.
+    <input name='advantage' type='checkbox' checked={{ settings.advantage }} />
+    switch on
+    <select name='switch'>
+      {{#each value in settings_values.switch}}
+        <option value='{{ value }}' selected={{ equal value settings.switch }} >{{ value }}</option>
+      {{/each}}
+    </select>
+    sets
+    <select name='sets'>
+      {{#each value in sets}}
+        <option value='{{ value }}' selected={{ equal value settings.sets }}>{{ value }}</option>
+      {{/each}}
+    </select>
+    to <input name='set_points' type='number' value='{{ settings.set_points }}' />
+    last set <input name='set_last_points' type='number' value='{{ settings.set_last_points }}' />
+  </div>
+
+  <div class='game' {{ switch_attr game.switch}}>
     {{ > App_game_edit_team team='0' }}
     <div class='game-score'>
-      <button class='game-score-switch'>switch</button>
       <div class='game-score-sets'><span data-team='0'>1</span><span data-team='1'>2</span></div>
+      <button class='game-score-switch'>switch</button>
       <button class='game-score-undo'>undo</button>
     </div>
     {{ > App_game_edit_team team='1' }}
@@ -30,26 +32,35 @@
 
 <template name='App_game_edit_team'>
   <div class='game-team' data-team='{{ team }}'>
-    <button class='game-team-timeout'>timeout</button>
     <div class='game-team-head'>
-        <span>Team {{ team }}</span>
+      <button class='game-team-head-timeout'>timeout</button>
+      <span class='game-team-head-score'>10</span>
+      <span class='game-team-head-name'>Team {{ team }}</span>
+      <span class='game-team-head-info'>Set Ball</span>
     </div>
-    <ul class='game-team-player'>
-      <li>Player 0</li>
-      <li>Player 1</li>
-    </ul>
-    {{ > App_game_edit_player player='0'}}
-    {{ > App_game_edit_player player='1'}}
+    <div class='game-team-player'>
+      <div class='game-team-player-name'>
+        <button>Player 0</button>
+      </div>
+      {{ > App_game_edit_player player='0'}}
+    </div>
+    <div class='game-team-player'>
+      <div class='game-team-player-name'>
+        <button>Player 1</button>
+      </div>
+      {{ > App_game_edit_player player='1'}}
+    </div>
   </div>
 </template>
 
 <template name='App_game_edit_player'>
   <ul class='game-team-action' data-player='{{ player }}'>
-    <li data-action='se'>Serve Error</li>
-    <li data-action='sa'>Serve Ace</li>
-    <li data-action='ae'>Attack Error</li>
-    <li data-action='ak'>Attack Kill</li>
-    <li data-action='b'>Block</li>
-    <li data-action='be'>Block Error</li>
+    <li data-action='se'><button>Serve Error</button></li>
+    <li data-action='sa'><button>Serve Ace</button></li>
+    <li data-action='ae'><button>Attack Error</button></li>
+    <li data-action='ak'><button>Attack Kill</button></li>
+    <li data-action='b'><button>Block</button></li>
+    <li data-action='be'><button>Block Error</button></li>
+    <li data-action='e'><button>Error</button></li>
   </ul>
 </template>

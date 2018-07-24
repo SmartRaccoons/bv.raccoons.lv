@@ -1,6 +1,6 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
-import { check } from 'meteor/check';
+import { check, Match } from 'meteor/check';
 import { settings } from './settings';
 
 
@@ -30,7 +30,7 @@ permissions = {
           check(params._id, String);
           ob = Collection.findOne(params._id);
         } else if (params && params.id) {
-          check(params.id, Number);
+          check(params.id, Match.Integer);
           ob = Collection.findOne({id: params.id});
         }
         if (!(ob && ob.owner === this.userId)) {
