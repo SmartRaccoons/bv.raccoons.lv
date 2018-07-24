@@ -6,21 +6,49 @@ import { settings } from './settings';
 
 export const Game = new Mongo.Collection('game');
 
+
 Game.deny({
   insert() { return true; },
   update() { return true; },
   remove() { return true; },
 });
 Game.helpers({
-  sets_total(){
+  update_attr(attr) {
+    Game.update(this._id, { $set: attr });
+  },
+  sets_total() {
     return [0, 1];
   },
-  sets_last(){
+  sets_last() {
     return this.sets[this.sets.length - 1];
   },
-  set_end(){
+  set_end() {
 
   },
+  sets_update(params) {
+    var last_index = this.sets.length - 1;
+    var team = params.team;
+    this.sets[last_index][team]++;
+    this.update_attr(Object.assign({
+      sets: this.sets
+    }, team !== this.serve[0] ? this._serve_next() : null));
+  },
+  _serve_next() {
+    this.serve[0] = (this.serve[0] + 1) % 2;
+    this.serve[1] = this.serve_order[this.serve[0]] = (this.serve_order[this.serve[0]] + 1) % 2;
+    return {
+      serve: this.serve,
+      serve_order: this.serve_order,
+    };
+  },
+  serve_update(params) {
+    this.serve = [params.serve[0], params.serve[1]];
+    this.serve_order[params.serve[0]] = params.serve[1];
+    this.update_attr({
+      serve: this.serve,
+      serve_order: this.serve_order,
+    });
+  }
 });
 
 permissions = {
@@ -65,10 +93,12 @@ if (Meteor.isServer) {
         id: id,
         created: new Date(),
         owner: this.userId,
-        serve: 0,
+        serve_order: [0, 0],
+        serve: [0, 0],
         'switch': false,
         teams: [null, null],
         sets: [[0, 0]],
+        sets_history: [],
       });
       return id;
     }),
@@ -85,8 +115,11 @@ Meteor.methods({
   'game.update.switch': permissions.owner(Game, function (_, ob) {
     Game.update(ob._id, { $set: { 'switch': !ob.switch } });
   }),
-  'game.update.point': permissions.owner(Game, function (_, ob) {
-    console.info(ob);
+  'game.update.point': permissions.owner(Game, function (params, ob) {
+    ob.sets_update({team: params.team});
+  }),
+  'game.update.serve': permissions.owner(Game, function (params, ob) {
+    ob.serve_update({serve: params.serve});
   }),
   'game.remove': permissions.owner(Game, function(_, ob) {
     Game.remove(ob._id);

@@ -19,8 +19,8 @@
   </div>
   {{#with game }}
     {{#if id }}
-      <div class='game' {{ switch_attr switch}}>
-        {{ > App_game_edit_team team='0' score=sets_last.[0] serve='1' }}
+      <div class='game' {{ switch_attr switch}} data-serve='{{ serve_player }}'>
+        {{ > App_game_edit_team team=0 _id=_id score=sets_last.[0] }}
         <div class='game-score'>
           <div class='game-score-sets'>
             <span data-team='0'>{{ sets_total.[0] }}</span><span data-team='1'>{{ sets_total.[1] }}</span>
@@ -28,7 +28,7 @@
           <button class='game-score-switch'>switch</button>
           <button class='game-score-undo'>undo</button>
         </div>
-        {{ > App_game_edit_team team='1' score=sets_last.[0] }}
+        {{ > App_game_edit_team team=1 _id=_id score=sets_last.[1] }}
       </div>
     {{ else }}
       loading element....
@@ -37,7 +37,7 @@
 </template>
 
 <template name='App_game_edit_team'>
-  <div class='game-team' data-serve='{{ serve }}' data-team='{{ team }}'>
+  <div class='game-team' data-team='{{ team }}'>
     <div class='game-team-head'>
       <span class='game-team-head-score'>{{ score }}</span>
       <span class='game-team-head-name'>Team {{ team }}</span>

@@ -2,6 +2,7 @@ import './game.edit.html';
 import { Game } from '../../../api/game/model'
 import { Template } from 'meteor/templating';
 import { settings, values } from '../../../api/game/settings';
+import { call } from '../methods'
 
 
 Template.App_game_edit.onCreated(function () {
@@ -31,6 +32,7 @@ Template.App_game_edit.helpers({
     if (!game) {
       return {};
     }
+    game.serve_player = game.serve[0] * 2 + game.serve[1];
     return Object.assign(game, ['sets_total', 'sets_last'].reduce((acc, v)=>{
       acc[v] = game[v]();
       return acc;
@@ -98,20 +100,17 @@ Template.App_game_edit.events(Object.keys(values).reduce((acc, pr)=> {
 
   Template.App_game_edit.events(long_press_fn({
     'click .game-score-switch'() {
-      Meteor.call('game.update.switch', {_id: this._id});
+      call('game.update.switch', {_id: this._id});
     },
     'click .game-team-head'(event) {
-      console.info('head');
-      var team = team_get(event);
-      console.info(team);
+      call('game.update.point', {_id: this._id, team: this.team});
     },
     'click .game-team-head-timeout'(event) {
       console.info('timeout');
       event.stopPropagation();
-      return false;
     },
     'click .game-team-player-name button'(event) {
-      console.info('player' + team_get(event) + '-' + player_get(event));
+      call('game.update.serve', {_id: this._id, serve: [team_get(event), player_get(event)]});
     },
   }, {
     '.game-team-head'(event) {

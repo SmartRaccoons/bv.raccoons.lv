@@ -5,6 +5,25 @@
   grid-template-columns: 2fr 2fr 1fr 2fr 2fr;
   transition: transform 0.3s;
   min-height: 95%;
+  &[data-serve='0'] .game-team[data-team='0'] .game-team-head::after,
+  &[data-serve='1'] .game-team[data-team='0'] .game-team-head::after,
+  &[data-serve='2'] .game-team[data-team='1'] .game-team-head::after,
+  &[data-serve='3'] .game-team[data-team='1'] .game-team-head::after {
+    display: block;
+    background: #ffc107;
+  }
+  &[data-serve='0'] .game-team[data-team='0'] .game-team-player[data-player='0'],
+  &[data-serve='1'] .game-team[data-team='0'] .game-team-player[data-player='1'],
+  &[data-serve='2'] .game-team[data-team='1'] .game-team-player[data-player='0'],
+  &[data-serve='3'] .game-team[data-team='1'] .game-team-player[data-player='1'] {
+    .game-team-player-name button {
+      border-color: #ffc107;
+      background: #ffc107;
+    }
+    button[data-action='se'], button[data-action='sa'] {
+      display: block;
+    }
+  }
   &-settings {
     height: 5%;
     display: flex;
@@ -42,22 +61,6 @@
         }
         &-info, &-name {
           left: 0;
-        }
-      }
-    }
-    &[data-serve='0'], &[data-serve='1'] {
-      .game-team-head::after {
-        display: block;
-        background: #ffc107;
-      }
-    &[data-serve='0'] .game-team-player[data-player='0'],
-    &[data-serve='1'] .game-team-player[data-player='1'] {
-        .game-team-player-name button {
-          border-color: #ffc107;
-          background: #ffc107;
-        }
-        button[data-action='se'], button[data-action='sa'] {
-          display: block;
         }
       }
     }
