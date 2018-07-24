@@ -29,3 +29,4 @@ accounts-facebook
 accounts-ui
 service-configuration
 konecty:mongo-counter
+dburles:collection-helpers

@@ -1,5 +1,4 @@
 <template name='App_game_edit'>
-
   <div class='game-settings'>
     2 points adv.
     <input name='advantage' type='checkbox' checked={{ settings.advantage }} />
@@ -18,25 +17,32 @@
     to <input name='set_points' type='number' value='{{ settings.set_points }}' />
     last set <input name='set_last_points' type='number' value='{{ settings.set_last_points }}' />
   </div>
-
-  <div class='game' {{ switch_attr game.switch}}>
-    {{ > App_game_edit_team team='0' serve='1' }}
-    <div class='game-score'>
-      <div class='game-score-sets'><span data-team='0'>1</span><span data-team='1'>2</span></div>
-      <button class='game-score-switch'>switch</button>
-      <button class='game-score-undo'>undo</button>
-    </div>
-    {{ > App_game_edit_team team='1' }}
-  </div>
+  {{#with game }}
+    {{#if id }}
+      <div class='game' {{ switch_attr switch}}>
+        {{ > App_game_edit_team team='0' score=sets_last.[0] serve='1' }}
+        <div class='game-score'>
+          <div class='game-score-sets'>
+            <span data-team='0'>{{ sets_total.[0] }}</span><span data-team='1'>{{ sets_total.[1] }}</span>
+          </div>
+          <button class='game-score-switch'>switch</button>
+          <button class='game-score-undo'>undo</button>
+        </div>
+        {{ > App_game_edit_team team='1' score=sets_last.[0] }}
+      </div>
+    {{ else }}
+      loading element....
+    {{/if}}
+  {{/with}}
 </template>
 
 <template name='App_game_edit_team'>
   <div class='game-team' data-serve='{{ serve }}' data-team='{{ team }}'>
     <div class='game-team-head'>
-      <button class='game-team-head-timeout'>timeout</button>
-      <span class='game-team-head-score'>10</span>
+      <span class='game-team-head-score'>{{ score }}</span>
       <span class='game-team-head-name'>Team {{ team }}</span>
       <span class='game-team-head-info'>Set Ball</span>
+      <button class='game-team-head-timeout'>timeout</button>
     </div>
     <div class='game-team-player' data-player='0'>
       <div class='game-team-player-name'>

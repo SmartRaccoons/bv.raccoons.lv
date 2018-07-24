@@ -11,8 +11,17 @@ Game.deny({
   update() { return true; },
   remove() { return true; },
 });
-// Game.helpers({
-// })
+Game.helpers({
+  sets_total(){
+    return [0, 1];
+  },
+  sets_last(){
+    return this.sets[this.sets.length - 1];
+  },
+  set_end(){
+
+  },
+});
 
 permissions = {
   login: function (fn){
@@ -75,6 +84,9 @@ if (Meteor.isServer) {
 Meteor.methods({
   'game.update.switch': permissions.owner(Game, function (_, ob) {
     Game.update(ob._id, { $set: { 'switch': !ob.switch } });
+  }),
+  'game.update.point': permissions.owner(Game, function (_, ob) {
+    console.info(ob);
   }),
   'game.remove': permissions.owner(Game, function(_, ob) {
     Game.remove(ob._id);

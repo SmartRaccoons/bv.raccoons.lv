@@ -27,7 +27,14 @@ Template.App_game_edit.helpers({
      return Array.from({length: values.sets.range[1] - values.sets.range[0] + 1},(v,k)=> values.sets.range[0] + k)
   },
   'game'() {
-    return Game.findOne({id: parseInt(this.id())});
+    var game = Game.findOne({id: parseInt(this.id())});
+    if (!game) {
+      return {};
+    }
+    return Object.assign(game, ['sets_total', 'sets_last'].reduce((acc, v)=>{
+      acc[v] = game[v]();
+      return acc;
+    }, {}));
   },
   'switch_attr'(v) {
     if (v) {
@@ -55,8 +62,63 @@ Template.App_game_edit.events(Object.keys(values).reduce((acc, pr)=> {
   return acc;
 }, {}));
 
-Template.App_game_edit.events({
-  'click .game-score-switch'() {
-    Meteor.call('game.update.switch', {id: parseInt(this.id())});
-  }
-});
+(function (){
+  var team_get = (event)=> parseInt($(event.target).closest('[data-team]').attr('data-team'));
+  var player_get = (event)=> parseInt($(event.target).closest('[data-player]').attr('data-player'));
+
+  var long_press_fn = (events, fns, ms)=> {
+    Object.keys(fns).forEach((element)=>{
+      var timeout, long_press, click_prev;
+      if (events['click ' + element]) {
+        click_prev = events['click ' + element];
+      }
+      events['click ' + element] = function(event) {
+        clearTimeout(timeout);
+        if (long_press) {
+          long_press = false;
+          return;
+        }
+        if (click_prev) {
+          click_prev.apply(this, arguments);
+        }
+      };
+      events['mouseleave ' + element] = (event)=> clearTimeout(timeout);
+      events['mouseup ' + element] = (event)=> clearTimeout(timeout);
+      events['mousedown ' + element] = function(event) {
+        var args = Array.prototype.slice.call(arguments);
+        timeout = setTimeout(()=>{
+          long_press = true;
+          event.stopPropagation();
+          fns[element].apply(this, args);
+        }, ms);
+      };
+    });
+    return events;
+  };
+
+  Template.App_game_edit.events(long_press_fn({
+    'click .game-score-switch'() {
+      Meteor.call('game.update.switch', {_id: this._id});
+    },
+    'click .game-team-head'(event) {
+      console.info('head');
+      var team = team_get(event);
+      console.info(team);
+    },
+    'click .game-team-head-timeout'(event) {
+      console.info('timeout');
+      event.stopPropagation();
+      return false;
+    },
+    'click .game-team-player-name button'(event) {
+      console.info('player' + team_get(event) + '-' + player_get(event));
+    },
+  }, {
+    '.game-team-head'(event) {
+      console.info('head long press ' + team_get(event));
+    },
+    '.game-team-player-name button'(event) {
+      console.info('player long press ' + team_get(event) + '-' + player_get(event));
+    },
+  }, 1000));
+})();
