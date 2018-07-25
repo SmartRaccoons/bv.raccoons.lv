@@ -26,7 +26,9 @@
             <span data-team='0'>{{ sets_result.[0] }}</span><span data-team='1'>{{ sets_result.[1] }}</span>
           </div>
           <button class='game-score-switch'>switch</button>
-          <button class='game-score-undo'>undo</button>
+          {{#if edited}}
+            <button class='game-score-undo'>undo</button>
+          {{/if}}
         </div>
         {{ > App_game_edit_team team=1 _id=_id score=sets_last.[1] }}
       </div>

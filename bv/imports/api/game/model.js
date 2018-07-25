@@ -101,10 +101,19 @@ Game.helpers({
       serve_order: this.serve_order,
     });
   },
+  edited() { return (!(this.sets[0][0] === 0 && this.sets[0][1] === 0))},
   undo() {
+    if (!this.edited()) {
+      return;
+    }
     var attr_update = {};
     var last_index = this.sets.length - 1;
     var last_history_index = this.sets_history[last_index].length - 1;
+    if (last_history_index < 0) {
+      this.sets.pop();
+      this.sets_history.pop();
+      return this.undo();
+    }
     var last_history = this.sets_history[last_index][last_history_index];
     var team = last_history.team[0];
     var opponent = (team + 1) % 2;

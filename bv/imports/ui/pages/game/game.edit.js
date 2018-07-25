@@ -33,7 +33,11 @@ Template.App_game_edit.helpers({
       return {};
     }
     game.serve_player = game.serve[0] * 2 + game.serve[1];
-    return Object.assign(game, ['sets_result', 'sets_last'].reduce((acc, v)=>{
+    return Object.assign(game, [
+      'sets_result',
+      'sets_last',
+      'edited',
+    ].reduce((acc, v)=>{
       acc[v] = game[v]();
       return acc;
     }, {}));
