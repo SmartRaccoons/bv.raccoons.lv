@@ -33,7 +33,7 @@ Template.App_game_edit.helpers({
       return {};
     }
     game.serve_player = game.serve[0] * 2 + game.serve[1];
-    return Object.assign(game, ['sets_total', 'sets_last'].reduce((acc, v)=>{
+    return Object.assign(game, ['sets_result', 'sets_last'].reduce((acc, v)=>{
       acc[v] = game[v]();
       return acc;
     }, {}));
@@ -111,6 +111,9 @@ Template.App_game_edit.events(Object.keys(values).reduce((acc, pr)=> {
     },
     'click .game-team-player-name button'(event) {
       call('game.update.serve', {_id: this._id, serve: [team_get(event), player_get(event)]});
+    },
+    'click .game-score-undo'(event) {
+      call('game.update.undo', {_id: this._id});
     },
   }, {
     '.game-team-head'(event) {

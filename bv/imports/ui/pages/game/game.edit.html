@@ -19,11 +19,11 @@
   </div>
   {{#with game }}
     {{#if id }}
-      <div class='game' {{ switch_attr switch}} data-serve='{{ serve_player }}'>
+      <div class='game' {{ switch_attr switch}} data-serve='{{ serve_player }}' data-ended='{{ ended }}'>
         {{ > App_game_edit_team team=0 _id=_id score=sets_last.[0] }}
         <div class='game-score'>
           <div class='game-score-sets'>
-            <span data-team='0'>{{ sets_total.[0] }}</span><span data-team='1'>{{ sets_total.[1] }}</span>
+            <span data-team='0'>{{ sets_result.[0] }}</span><span data-team='1'>{{ sets_result.[1] }}</span>
           </div>
           <button class='game-score-switch'>switch</button>
           <button class='game-score-undo'>undo</button>
