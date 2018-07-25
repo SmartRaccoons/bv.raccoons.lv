@@ -2,7 +2,7 @@
   <div class='game-settings'>
     2 points adv.
     <input name='advantage' type='checkbox' checked={{ settings.advantage }} />
-    switch on
+    switch hightlight
     <select name='switch'>
       {{#each value in settings_values.switch}}
         <option value='{{ value }}' selected={{ equal value settings.switch }} >{{ value }}</option>
@@ -10,7 +10,7 @@
     </select>
     sets
     <select name='sets'>
-      {{#each value in sets}}
+      {{#each value in sets_values}}
         <option value='{{ value }}' selected={{ equal value settings.sets }}>{{ value }}</option>
       {{/each}}
     </select>
@@ -20,17 +20,22 @@
   {{#with game }}
     {{#if id }}
       <div class='game' {{ switch_attr switch}} data-serve='{{ serve_player }}' data-ended='{{ ended }}'>
-        {{ > App_game_edit_team team=0 _id=_id score=sets_last.[0] }}
+        {{ > App_game_edit_team team=0 _id=_id score=sets_last.[0] info=info.[0] timeouts=timeouts.[0] history_last=history_last serve_player=serve_player }}
         <div class='game-score'>
+          <button class='game-score-switch' data-highlight='{{ switch_highlight }}' data-counter={{ switches }}>switch</button>
           <div class='game-score-sets'>
-            <span data-team='0'>{{ sets_result.[0] }}</span><span data-team='1'>{{ sets_result.[1] }}</span>
+            <span data-team='0'>{{ sets_result.[0] }}</span>:<span data-team='1'>{{ sets_result.[1] }}</span>
           </div>
-          <button class='game-score-switch'>switch</button>
           {{#if edited}}
             <button class='game-score-undo'>undo</button>
           {{/if}}
+          {{#each set in sets_played}}
+            <div class='game-score-history'>
+              <span data-team='0'>{{ set.[0] }}</span>:<span data-team='1'>{{ set.[1] }}</span>
+            </div>
+          {{/each}}
         </div>
-        {{ > App_game_edit_team team=1 _id=_id score=sets_last.[1] }}
+        {{ > App_game_edit_team team=1 _id=_id score=sets_last.[1] info=info.[1] timeouts=timeouts.[1] history_last=history_last serve_player=serve_player }}
       </div>
     {{ else }}
       loading element....
@@ -43,32 +48,28 @@
     <div class='game-team-head'>
       <span class='game-team-head-score'>{{ score }}</span>
       <span class='game-team-head-name'>Team {{ team }}</span>
-      <span class='game-team-head-info'>Set Ball</span>
-      <button class='game-team-head-timeout'>timeout</button>
+      <span class='game-team-head-info'>{{#if info}}{{ info }} ball{{/if}}</span>
+      <button class='game-team-head-timeout' data-timeouts='{{ timeouts }}'>timeout</button>
     </div>
     <div class='game-team-player' data-player='0'>
       <div class='game-team-player-name'>
         <button>Player 0</button>
       </div>
-      {{ > App_game_edit_player player='0'}}
+      {{ > App_game_edit_player player=0 team=team _id=_id history_last=history_last serve_player=serve_player}}
     </div>
     <div class='game-team-player' data-player='1'>
       <div class='game-team-player-name'>
         <button>Player 1</button>
       </div>
-      {{ > App_game_edit_player player='1'}}
+      {{ > App_game_edit_player player=1 team=team _id=_id history_last=history_last serve_player=serve_player}}
     </div>
   </div>
 </template>
 
 <template name='App_game_edit_player'>
   <ul class='game-team-action'>
-    <li><button data-action='se'>Serve Error</button></li>
-    <li><button data-last data-action='sa'>Serve Ace</button></li>
-    <li><button data-action='ae'>Attack Error</button></li>
-    <li><button data-action='ak'>Attack Kill</button></li>
-    <li><button data-action='be'>Block Error</button></li>
-    <li><button data-action='b'>Block</button></li>
-    <li><button data-action='e'>Error</button></li>
+    {{#each action in actions}}
+      <li><button disabled={{ serve_check serve_player action.ev }} data-last={{ last_check action.ev }} data-points='{{ action.points }}' data-action='{{ action.ev }}'>{{ action.text }}</button></li>
+    {{/each}}
   </ul>
 </template>

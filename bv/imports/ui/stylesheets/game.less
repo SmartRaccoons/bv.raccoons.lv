@@ -20,9 +20,6 @@
       border-color: #ffc107;
       background: #ffc107;
     }
-    button[data-action='se'], button[data-action='sa'] {
-      display: block;
-    }
   }
   &[data-ended] {
     .game-team-action {
@@ -31,15 +28,10 @@
   }
   &-settings {
     height: 5%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    text-align: center;
     select {
       max-width: 5em;
     }
-  }
-  &-score {
-    height: 15em;
   }
   &-team {
     display: grid;
@@ -96,6 +88,16 @@
         position: absolute;
         top: 0;
         height: 3em;
+        &[data-timeouts]::after {
+          &:extend(button[data-counter]::after);
+          content: attr(data-timeouts);
+        }
+        &[data-timeouts='0'] {
+          &:extend(button[data-highlight]);
+          &::after {
+            display: none;
+          }
+        }
       }
       &-info {
         position: absolute;
@@ -145,13 +147,7 @@
           height: 100%;
           background: #28a745;
         }
-        &[data-action='se'], &[data-action='sa'] {
-          display: none;
-        }
-        &[data-action='se'],
-        &[data-action='ae'],
-        &[data-action='be'],
-        &[data-action='e'] {
+        &[data-points='-1'] {
           border-color: #dc3545;
           color: #dc3545;
           &::after {
@@ -165,43 +161,22 @@
     }
   }
   &-score {
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    &-switch, &-undo {
-      height: 4em;
-    }
-    &-switch {
-      top: 0;
-    }
-    &-undo {
-      bottom: 0;
-    }
     >button {
-      position: absolute;
+      height: 4em;
       width: 100%;
     }
-    &-sets {
+    &-sets, &-history {
       text-align: center;
-      position: relative;
       font-size: 3em;
       width: 100%;
+      white-space: nowrap;
       span {
         display: inline-block;
-        width: 50%;
-        text-align: center;
       }
-      &:after {
-        display: block;
-        position: absolute;
-        content: ':';
-        top: 0;
-        left: 50%;
-        width: 1em;
-        margin-left: -0.5em;
-        text-align: center;
-      }
+    }
+    &-history {
+      padding: 0.4em 0 0;
+      font-size: 0.8em;
     }
   }
   &[data-switch] {
