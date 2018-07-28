@@ -4,7 +4,10 @@
   padding: 0.5em;
   grid-template-columns: 2fr 2fr 1fr 2fr 2fr;
   transition: transform 0.3s;
-  min-height: 95%;
+  min-height: 93%;
+  &[data-full] {
+    height: 100%;
+  }
   &[data-serve='0'] .game-team[data-team='0'] .game-team-head::after,
   &[data-serve='1'] .game-team[data-team='0'] .game-team-head::after,
   &[data-serve='2'] .game-team[data-team='1'] .game-team-head::after,
@@ -26,14 +29,181 @@
       opacity: 0.3;
     }
   }
+  &[data-counter] {
+    grid-template-rows: 3fr 1fr;
+    .game-team {
+      grid-template-rows: 4fr 1fr;
+      &-player-name {
+        height: 100%;
+      }
+    }
+  }
   &-settings {
-    height: 5%;
+    height: 7%;
     text-align: center;
     select {
       max-width: 5em;
     }
   }
+  &-stats {
+    display: grid;
+    grid-gap: 0.5em;
+    padding: 0.5em;
+    grid-template-columns: 2fr 1fr 2fr;
+    >.game-score {
+      grid-row: auto;
+      .game-score-sets {
+        font-size: 5em;
+      }
+    }
+    &-team {
+      text-align: center;
+      &-name {
+        width: 100%;
+        font-size: 3em;
+      }
+      &-player {
+        display: inline-block;
+        width: 40%;
+      }
+    }
+    &-sets {
+      grid-column: ~"1/4";
+      display: flex;
+      flex-wrap: nowrap;
+      align-content: space-around;
+    }
+    &-set {
+      flex-grow: 1;
+      flex-basis: 0;
+      margin: 1em;
+      &:first-child {
+        margin-left: 0;
+      }
+      &:last-child {
+        margin-right: 0;
+      }
+      .game-score-sets {
+        font-size: 2em;
+      }
+    }
+    &-recap {
+      grid-column: ~"1/4";
+      border-top: 1px solid #212529;
+      padding: 1em 0;
+      &-entry {
+        text-align: center;
+        &-team {
+          display: inline-block;
+          span {
+            display: inline-block;
+            width: 2em;
+          }
+        }
+        &-action {
+          display: inline-block;
+          width: 10em;
+          &[data-points='1'] {
+            color: #28a745;
+          }
+          &[data-points='-1'] {
+            color: #dc3545;
+          }
+          &::after {
+            content: attr(data-action);
+          }
+        }
+      }
+    }
+  }
+  &-history {
+    grid-column: ~"1/6";
+    grid-row: ~"2/3";
+  }
+  &-history-entry {
+    min-height: 100%/4;
+    display: grid;
+    grid-gap: 0.5em;
+    grid-template-columns: 4fr 1fr 4fr;
+    span {
+      display: none;
+      grid-row: ~"1/2";
+      height: 95%;
+      border: 1px solid #fff;
+    }
+    [data-el='0'] {
+      grid-gap: 0.5em;
+      grid-template-columns: 1fr 1fr;
+      &::after {
+        content: "\00a0" attr(data-action) "\00a0" ;
+        text-align: center;
+        text-transform: uppercase;
+        font-size: 0.8em;
+        align-self: center;
+      }
+      &[data-player='0']::after {
+        grid-column: ~"1/2";
+      }
+      &[data-player='1']::after {
+        grid-column: ~"2/3";
+      }
+    }
+    &[data-point='0'] {
+      &[data-action='SW'] {
+        [data-el='0'] {
+          grid-column: ~"1/4";
+          display: grid;
+          border-color: #ffc107;
+          &::after {
+            grid-column: ~"1/3";
+          }
+        }
+      }
+      &[data-action='T'] {
+        [data-el='0'] {
+          display: grid;
+          border-color: #ffc107;
+          &::after {
+            grid-column: ~"1/3";
+          }
+        }
+        &[data-team='0'] [data-el='0'] {
+          grid-column: ~"1/3";
+        }
+        &[data-team='1'] [data-el='0'] {
+          grid-column: ~"2/4";
+        }
+      }
+    }
+    &[data-team='0'][data-point='1'] [data-el='0'],
+    &[data-team='1'][data-point='-1'] [data-el='1'],
+    {
+      display: grid;
+      grid-column: ~"1/2";
+      background: #007bff;
+    }
+    &[data-team='0'][data-point='-1'] [data-el='0'] {
+      display: grid;
+      grid-column: ~"1/2";
+      border-color: #dc3545;
+    }
+
+    &[data-team='0'][data-point='-1'] [data-el='1'],
+    &[data-team='1'][data-point='1'] [data-el='0'],
+    {
+      display: grid;
+      grid-column: ~"3/4";
+      background: #007bff;
+    }
+    &[data-team='1'][data-point='-1'] [data-el='0']
+    {
+      display: grid;
+      grid-column: ~"3/4";
+      border-color: #dc3545;
+    }
+  }
   &-team {
+    grid-row: ~"1/2";
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: 30% 70%;
@@ -65,7 +235,7 @@
       grid-column: ~"1/3";
       position: relative;
       background: #efefef;
-      overlfow: hidden;
+      overflow: hidden;
       &::after {
         position: absolute;
         left: 0;
@@ -161,6 +331,7 @@
     }
   }
   &-score {
+    grid-row: ~"1/2";
     >button {
       height: 4em;
       width: 100%;
@@ -201,6 +372,9 @@
           left: auto;
         }
       }
+    }
+    .game-history-entry span {
+      transform: scale(-1, 1);
     }
     .game-score {
       button, span {

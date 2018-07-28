@@ -1,7 +1,7 @@
 import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check, Match } from 'meteor/check';
-import { settings } from './settings';
+import { settings_validate } from './settings';
 
 
 export const Game = new Mongo.Collection('game');
@@ -15,13 +15,13 @@ Game.deny({
 
 export const actions_default = [
   {ev: '', points: 1},
-  {ev: 'se', points: -1},
-  {ev: 'sa', points: 1},
-  {ev: 'ae', points: -1},
-  {ev: 'ak', points: 1},
-  {ev: 'be', points: -1},
-  {ev: 'b', points: 1},
-  {ev: 'e', points: -1},
+  {ev: 'se', points: -1, text: 'Serve error'},
+  {ev: 'sa', points: 1, text: 'Serve ace'},
+  {ev: 'ae', points: -1, text: 'Attack error'},
+  {ev: 'ak', points: 1, text: 'Attack kill'},
+  {ev: 'be', points: -1, text: 'Block error'},
+  {ev: 'b', points: 1, text: 'Block'},
+  {ev: 'e', points: -1, text: 'Error'},
 ];
 Game.helpers({
   update_attr(attr) {
@@ -41,15 +41,13 @@ Game.helpers({
     return this.sets[this.sets.length - 1];
   },
   _set_is_last() {
-    let settings = this._settings();
-    return this.sets.length >= settings.sets
+    return this.sets.length >= this.settings.sets
   },
   _set_point_diff(advantage) {
     let set = this.sets.slice(-1)[0];
-    let settings = this._settings();
-    let points_end = (this._set_is_last() ? settings.set_last_points : settings.set_points) - advantage;
+    let points_end = (this._set_is_last() ? this.settings.set_last_points : this.settings.set_points) - advantage;
     if (set[0] >= points_end || set[1] >= points_end) {
-      if (!settings.advantage) {
+      if (!this.settings.advantage) {
         return set[0] > set[1] ? 0 : 1;
       }
       if (Math.abs(set[0] - set[1]) >= ( 2 - advantage)) {
@@ -60,9 +58,6 @@ Game.helpers({
   },
   _set_point() { return this._set_point_diff(1); },
   _set_end() { return this._set_point_diff(0) !== false; },
-  _settings(){
-    return settings(Meteor.users.findOne(Meteor.userId()).settings);
-  },
   info() {
     let set_point = this._set_point();
     let set_last = this._set_is_last();
@@ -83,28 +78,28 @@ Game.helpers({
   },
   switch_highlight() {
     let history = this.sets_history[this.sets.length - 1];
-    let settings = this._settings();
+    let history_switched = history && history.length > 0 && history[history.length-1].action === 'SW';
     let points = this.sets[this.sets.length - 1];
     let points_total = points[0] + points[1];
-    let points_max = (this._set_is_last() ? settings.set_last_points : settings.set_points);
-    if (settings.switch === 'set') {
-      return this.sets.length > 1 && points_total === 0;
+    let points_max = (this._set_is_last() ? this.settings.set_last_points : this.settings.set_points);
+    if (this.settings.switch === 'set') {
+      return this.sets.length > 1 && points_total === 0 && !history_switched;
     }
     if (points_total === 0) {
       return false;
     }
-    if (settings.switch === 'sum 1/3' &&
+    if (this.settings.switch === 'sum 1/3' &&
       !(points_total % Math.ceil(points_max / 3) === 0)) {
       return false;
     }
-    if (settings.switch === 'first 1/2' &&
+    if (this.settings.switch === 'first 1/2' &&
       !(
         ( ( points[0] % Math.ceil(points_max / 2) === 0 ) && points[0] > points[1]) ||
         ( ( points[1] % Math.ceil(points_max / 2) === 0 ) && points[1] > points[0])
       ) ) {
       return false;
     }
-    return !(history && history.length > 0 && history[history.length-1].action === 'SW');
+    return !history_switched;
   },
   sets_update(params) {
     if (this.ended) {
@@ -188,6 +183,7 @@ Game.helpers({
       serve: [this.serve[0], this.serve[1]],
       point: point,
       action: action,
+      added: new Date(),
     });
     return point;
   },
@@ -200,6 +196,40 @@ Game.helpers({
         }
       }
     }
+  },
+  history_last_counter(total = 4) {
+    let collect = [];
+    for (let i = this.sets.length - 1; i > -1; i--) {
+      for (let j = this.sets_history[i].length - 1; j > -1; j--) {
+        collect.push(this.sets_history[i][j]);
+        if (collect.length >= total) {
+          return collect;
+        }
+      }
+      collect.push({action: 'SET'})
+    }
+    return collect;
+  },
+  history_all() {
+    return this.sets.map((v, i)=> {
+      return {
+        result: v,
+        history: this.sets_history[i],
+      }
+    });
+  },
+  history_stats() {
+     return actions_default.filter((v)=> v.ev !== '').map((v)=>{
+      v.stats = [[0, 0], [0, 0]];
+      this.sets_history.forEach((set)=>{
+        set.forEach((point)=>{
+          if(v.ev === point.action && point.team.length === 2) {
+            v.stats[point.team[0]][point.team[1]]++;
+          }
+        });
+      });
+      return v;
+    }).filter((v)=> (v.stats[0][0] + v.stats[0][1] + v.stats[1][0] + v.stats[1][1]) > 0 );
   },
   _serve_next() {
     this.serve[0] = (this.serve[0] + 1) % 2;
@@ -217,6 +247,9 @@ Game.helpers({
       serve_order: this.serve_order,
     });
   },
+  serve_player() {
+    return this.serve[0] * 2 + this.serve[1];
+  },
   edited() { return this.sets_history[0].length > 0 },
   undo() {
     if (!this.edited()) {
@@ -227,6 +260,7 @@ Game.helpers({
     let last_history = this.sets_history[last_index].pop();
     if (!last_history) {
       this.sets.pop();
+      this.sets_history.pop();
       return this.undo();
     }
     let team = last_history.team[0];
@@ -286,8 +320,19 @@ permissions = {
 };
 
 if (Meteor.isServer) {
-  Meteor.publish('game.private', function () {
-    return Game.find({owner: this.userId}, {sort: {id: -1}});
+  Meteor.publish('game.public', function (id) {
+    let params = {};
+    if (id) {
+      params.id = parseInt(id);
+    }
+    return Game.find(params, {sort: {id: -1}});
+  });
+  Meteor.publish('game.private', function (id) {
+    let params = {owner: this.userId};
+    if (id) {
+      params.id = parseInt(id);
+    }
+    return Game.find(params, {sort: {id: -1}});
   });
   Meteor.publish('user', function () {
     return Meteor.users.find(this.userId);
@@ -308,19 +353,22 @@ if (Meteor.isServer) {
         sets_history: [[]],
         started: null,
         ended: null,
+        settings: settings_validate(Meteor.users.findOne(this.userId).settings),
       });
       return id;
-    }),
-    'user.update.settings': permissions.login(function (value) {
-      Meteor.users.update(this.userId, {
-        $set: {
-          settings: settings(value)
-        }
-      });
     }),
   });
 }
 Meteor.methods({
+  'game.update.settings': permissions.owner(Game, function (params, ob) {
+    let settings = settings_validate(params.settings);
+    ob.update_attr({settings: settings})
+    Meteor.users.update(this.userId, {
+      $set: {
+        settings: settings
+      }
+    });
+  }),
   'game.update.switch': permissions.owner(Game, function (_, ob) {
     ob.sets_update_switch();
   }),

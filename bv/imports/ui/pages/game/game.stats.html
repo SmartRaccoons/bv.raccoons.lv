@@ -1,0 +1,60 @@
+<template name='App_game_stats'>
+  {{#with game }}
+    {{#if id }}
+      <div class='game-stats'>
+        {{ > App_game_stats_team team=0 }}
+        {{ > App_game_score score=sets_result}}
+        {{ > App_game_stats_team team=1 }}
+        <div class='game-stats-sets'>
+          {{#each set in history_all}}
+            <div class='game-stats-set'>
+              {{ > App_game_score score=set.result}}
+              {{ > App_game_history history=set.history }}
+            </div>
+          {{/each}}
+        </div>
+        <div class='game-stats-recap'>
+          {{#each action in history_stats}}
+            <div class='game-stats-recap-entry'>
+              <div class='game-stats-recap-entry-team'>
+                <span data-player='0'>{{ action.stats.[0].[0] }}</span>
+                <span data-player='1'>{{ action.stats.[0].[1] }}</span>
+              </div>
+              <div class='game-stats-recap-entry-action'
+                data-points='{{ action.points }}'
+                data-action='{{ action.text }}'
+                ></div>
+              <div class='game-stats-recap-entry-team'>
+                <span data-player='0'>{{ action.stats.[1].[0] }}</span>
+                <span data-player='1'>{{ action.stats.[1].[1] }}</span>
+              </div>
+            </div>
+          {{/each}}
+        </div>
+      </div>
+      <a href='/{{ id }}'>Score table</a>
+    {{ else }}
+      loading element....
+    {{/if}}
+  {{/with}}
+</template>
+
+<template name='App_game_score'>
+  <div class='game-score'>
+    <div class='game-score-sets'>
+      <span data-team='0'>{{ score.[0] }}</span>:<span data-team='1'>{{ score.[1] }}</span>
+    </div>
+  </div>
+</template>
+
+<template name='App_game_stats_team'>
+  <div class='game-stats-team'>
+    <div class='game-stats-team-name'>Team {{ team }}</div>
+    <div class='game-stats-team-player'>
+      Player 0
+    </div>
+    <div class='game-stats-team-player'>
+      Player 1
+    </div>
+  </div>
+</template>

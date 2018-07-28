@@ -1,38 +1,22 @@
 import './game.edit.html';
 import { Game, actions_default } from '../../../api/game/model'
 import { Template } from 'meteor/templating';
-import { settings, values } from '../../../api/game/settings';
+import { settings_values } from '../../../api/game/settings';
 import { call } from '../methods'
+// import { game_helper } from './game.helper'
 
 
 Template.App_game_edit.onCreated(function () {
   Meteor.subscribe('user');
   let id = parseInt(this.data.id());
   this.autorun(() => {
-    this.subscribe('game.private');
+    this.subscribe('game.private', id);
   });
 });
 
-let settings_get = function () {
-  let user = Meteor.user();
-  return settings(user ? user.settings : {});
-};
 
 Template.App_game_edit_player.helpers({
-  actions() {
-    let actions_default_translate = {
-      'se': 'Serve error',
-      'sa': 'Serve ace',
-      'ae': 'Attack error',
-      'ak': 'Attack kill',
-      'be': 'Block error',
-      'b': 'Block',
-      'e': 'Error',
-    };
-    return actions_default.filter((v)=> v.ev !== '').map((v)=>{
-      return Object.assign(v, {text: actions_default_translate[v.ev]});
-    });
-  },
+  actions() { return actions_default.filter((v)=> v.ev !== '');},
   last_check(action) {
     return (this.history_last &&
       this.history_last.team[0] === this.team &&
@@ -46,34 +30,15 @@ Template.App_game_edit_player.helpers({
 });
 
 Template.App_game_edit.helpers({
-  settings: settings_get,
-  settings_values: values,
+  settings_values: settings_values,
   'equal'(v1, v2) {
     return v1 === v2;
   },
   'sets_values'() {
-     return Array.from({length: values.sets.range[1] - values.sets.range[0] + 1},(v,k)=> values.sets.range[0] + k)
+     return Array.from({length: settings_values.sets.range[1] - settings_values.sets.range[0] + 1},(v,k)=> settings_values.sets.range[0] + k)
   },
   'game'() {
-    let game = Game.findOne({id: parseInt(this.id())});
-    if (!game) {
-      return {};
-    }
-    game.serve_player = game.serve[0] * 2 + game.serve[1];
-    return Object.assign(game, [
-      'sets_result',
-      'sets_last',
-      'sets_played',
-      'edited',
-      'info',
-      'timeouts',
-      'switches',
-      'switch_highlight',
-      'history_last',
-    ].reduce((acc, v)=>{
-      acc[v] = game[v]();
-      return acc;
-    }, {}));
+    return Game.findOne({id: parseInt(this.id())});
   },
   'switch_attr'(v) {
     if (v) {
@@ -82,12 +47,12 @@ Template.App_game_edit.helpers({
   },
 });
 
-Template.App_game_edit.events(Object.keys(values).reduce((acc, pr)=> {
+Template.App_game_edit.events(Object.keys(settings_values).reduce((acc, pr)=> {
   acc['change [name="' + pr + '"]'] = ((pr)=> {
-    return (event)=> {
+    return function(event) {
       let params = {};
-      if (Array.isArray(values[pr])) {
-        if(values[pr].length === 2) {
+      if (Array.isArray(settings_values[pr])) {
+        if(settings_values[pr].length === 2) {
           params[pr] = event.target.checked;
         } else {
           params[pr] = event.target.value;
@@ -95,7 +60,7 @@ Template.App_game_edit.events(Object.keys(values).reduce((acc, pr)=> {
       } else {
         params[pr] = parseInt(event.target.value);
       }
-      Meteor.call('user.update.settings', Object.assign(settings_get(), params));
+      call('game.update.settings', { _id: this._id, settings: Object.assign(this.settings, params) });
     };
   })(pr);
   return acc;

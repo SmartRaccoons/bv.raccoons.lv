@@ -7,6 +7,8 @@ import '../../ui/layouts/body/body.js';
 import '../../ui/pages/home/home.js';
 import '../../ui/pages/game/games.js';
 import '../../ui/pages/game/game.edit.js';
+import '../../ui/pages/game/game.counter.js';
+import '../../ui/pages/game/game.stats.js';
 import '../../ui/pages/not-found/not-found.js';
 
 
@@ -20,7 +22,8 @@ FlowRouter.notFound = {
 };
 
 
-FlowRouter.route('/', {
+let app_public = FlowRouter.group({});
+app_public.route('/', {
   name: 'App.home',
   action() {
     BlazeLayout.render('App_body', {
@@ -29,16 +32,28 @@ FlowRouter.route('/', {
     });
   },
 });
+app_public.route('/:id', {
+  name: 'App.game.counter',
+  action(params) {
+    BlazeLayout.render('App_game_counter', params);
+  }
+});
+app_public.route('/:id/stats', {
+  name: 'App.game.stats',
+  action(params) {
+    BlazeLayout.render('App_game_stats', params);
+  }
+});
 
 
-app_games = FlowRouter.group({
+let app_games = FlowRouter.group({
   prefix: '/app/game',
   triggersEnter: [function(){
     if (!Meteor.loggingIn() && !Meteor.userId()){
       FlowRouter.go('App.home');
     }
   }]
-})
+});
 app_games.route('/', {
   name: 'App.game',
   action() {
