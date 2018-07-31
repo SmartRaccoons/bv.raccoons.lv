@@ -15,7 +15,7 @@ Template.App_game.onCreated(function () {
 
 Template.App_game.helpers({
   games() {
-    return Game.find({owner: Meteor.userId()}, {sort: {id: -1}})
+    return Game.find({owner: Meteor.userId()}, {sort: {created: -1}});
   }
 });
 

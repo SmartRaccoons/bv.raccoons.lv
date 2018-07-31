@@ -31,3 +31,4 @@ service-configuration
 konecty:mongo-counter
 dburles:collection-helpers
 session
+reywood:publish-composite

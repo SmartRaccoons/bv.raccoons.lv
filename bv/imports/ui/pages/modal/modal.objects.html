@@ -1,0 +1,18 @@
+<template name='modal_objects'>
+  {{#if disabled }}
+    <p>{{ disabled_text }}</p>
+  {{else}}
+    <form>
+      <input type='text' name='object' placeholder='New {{ name }} name' />
+      <button type='submit'>Add {{ name }}</button>
+    </form>
+  {{/if }}
+  {{#if objects.count }}
+    <p>Or choose existing</p>
+    <ul>
+      {{#each ob in objects}}
+        <li><span class='link' data-id='{{ ob._id }}'>{{ ob.name }}</span></li>
+      {{/each}}
+    </ul>
+  {{/if}}
+</template>

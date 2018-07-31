@@ -1,9 +1,10 @@
 import './game.edit.html';
-import { Game, actions_default } from '../../../api/game/model'
+import { Game, actions_default } from '../../../api/game/model';
 import { Template } from 'meteor/templating';
 import { settings_values } from '../../../api/game/settings';
-import { call } from '../methods'
-// import { game_helper } from './game.helper'
+import { call } from '../methods';
+import { ModalPlayer } from '../team/player.edit';
+import { ModalTeam } from '../team/team.edit';
 
 
 Template.App_game_edit.onCreated(function () {
@@ -19,13 +20,13 @@ Template.App_game_edit_player.helpers({
   actions() { return actions_default.filter((v)=> v.ev !== '');},
   last_check(action) {
     return (this.history_last &&
-      this.history_last.team[0] === this.team &&
+      this.history_last.team[0] === this.team_id &&
       this.history_last.team[1] === this.player &&
       this.history_last.action === action
     );
   },
   serve_check(player, ev) {
-    return ((this.team * 2 + this.player) !== player && ['sa', 'se'].indexOf(ev) > -1 );
+    return ((this.team_id * 2 + this.player) !== player && ['sa', 'se'].indexOf(ev) > -1 );
   },
 });
 
@@ -37,9 +38,7 @@ Template.App_game_edit.helpers({
   'sets_values'() {
      return Array.from({length: settings_values.sets.range[1] - settings_values.sets.range[0] + 1},(v,k)=> settings_values.sets.range[0] + k)
   },
-  'game'() {
-    return Game.findOne({id: parseInt(this.id())});
-  },
+  'game'() { return Game.findOne({id: parseInt(this.id())}); },
   'switch_attr'(v) {
     if (v) {
       return {'data-switch': ''};
@@ -105,11 +104,11 @@ Template.App_game_edit.events(Object.keys(settings_values).reduce((acc, pr)=> {
       call('game.update.switch', {_id: this._id});
     },
     'click .game-team-head'(event) {
-      call('game.update.point', {_id: this._id, team: [this.team], action: ''});
+      call('game.update.point', {_id: this._id, team: [team_get(event)], action: ''});
     },
     'click .game-team-head-timeout'(event) {
       event.stopPropagation();
-      call('game.update.timeout', {_id: this._id, team: this.team});
+      call('game.update.timeout', {_id: this._id, team: team_get(event)});
     },
     'click .game-team-player-name button'(event) {
       call('game.update.serve', {_id: this._id, serve: [team_get(event), player_get(event)]});
@@ -126,10 +125,10 @@ Template.App_game_edit.events(Object.keys(settings_values).reduce((acc, pr)=> {
     },
   }, {
     '.game-team-head'(event) {
-      console.info('head long press ' + team_get(event));
+      ModalTeam({_id: this._id, teams: this.teams[team_get(event)], team: team_get(event)});
     },
     '.game-team-player-name button'(event) {
-      console.info('player long press ' + team_get(event) + '-' + player_get(event));
+      ModalPlayer({_id: this._id, team: team_get(event), player: player_get(event)});
     },
   }, 1000));
 })();

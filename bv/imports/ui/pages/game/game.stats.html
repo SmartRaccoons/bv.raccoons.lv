@@ -2,9 +2,9 @@
   {{#with game }}
     {{#if id }}
       <div class='game-stats'>
-        {{ > App_game_stats_team team=0 }}
+        {{ > App_game_stats_team team=teams_named.[0] }}
         {{ > App_game_score score=sets_result}}
-        {{ > App_game_stats_team team=1 }}
+        {{ > App_game_stats_team team=teams_named.[1] }}
         <div class='game-stats-sets'>
           {{#each set in history_all}}
             <div class='game-stats-set'>
@@ -49,12 +49,12 @@
 
 <template name='App_game_stats_team'>
   <div class='game-stats-team'>
-    <div class='game-stats-team-name'>Team {{ team }}</div>
+    <div class='game-stats-team-name'>{{ team.name }}</div>
     <div class='game-stats-team-player'>
-      Player 0
+      {{ team.players.[0] }}
     </div>
     <div class='game-stats-team-player'>
-      Player 1
+      {{ team.players.[1] }}
     </div>
   </div>
 </template>

@@ -23,7 +23,7 @@
 
     {{#if id }}
       <div class='game' {{ switch_attr switch}} data-serve='{{ serve_player }}' data-ended='{{ ended }}'>
-        {{ > App_game_edit_team team=0 _id=_id score=sets_last.[0] info=info.[0] timeouts=timeouts.[0] history_last=history_last serve_player=serve_player }}
+        {{ > App_game_edit_team teams=teams team=teams_named.[0] team_id=0 _id=_id score=sets_last.[0] info=info.[0] timeouts=timeouts.[0] history_last=history_last serve_player=serve_player }}
         <div class='game-score'>
           <button class='game-score-switch' data-highlight={{ switch_highlight }} data-counter={{ switches }}>switch</button>
           <div class='game-score-sets'>
@@ -38,7 +38,7 @@
             </div>
           {{/each}}
         </div>
-        {{ > App_game_edit_team team=1 _id=_id score=sets_last.[1] info=info.[1] timeouts=timeouts.[1] history_last=history_last serve_player=serve_player }}
+        {{ > App_game_edit_team teams=teams team=teams_named.[1] team_id=1 _id=_id score=sets_last.[1] info=info.[1] timeouts=timeouts.[1] history_last=history_last serve_player=serve_player }}
       </div>
     {{ else }}
       loading element....
@@ -47,24 +47,24 @@
 </template>
 
 <template name='App_game_edit_team'>
-  <div class='game-team' data-team='{{ team }}'>
+  <div class='game-team' data-team='{{ team_id }}'>
     <div class='game-team-head'>
       <span class='game-team-head-score'>{{ score }}</span>
-      <span class='game-team-head-name'>Team {{ team }}</span>
+      <span class='game-team-head-name'>{{ team.name }}</span>
       <span class='game-team-head-info'>{{#if info}}{{ info }} ball{{/if}}</span>
       <button class='game-team-head-timeout' data-timeouts='{{ timeouts }}'>timeout</button>
     </div>
     <div class='game-team-player' data-player='0'>
       <div class='game-team-player-name'>
-        <button>Player 0</button>
+        <button>{{ team.players.[0] }}</button>
       </div>
-      {{ > App_game_edit_player player=0 team=team _id=_id history_last=history_last serve_player=serve_player}}
+      {{ > App_game_edit_player player=0 team_id=team_id _id=_id history_last=history_last serve_player=serve_player}}
     </div>
     <div class='game-team-player' data-player='1'>
       <div class='game-team-player-name'>
-        <button>Player 1</button>
+        <button>{{ team.players.[1] }}</button>
       </div>
-      {{ > App_game_edit_player player=1 team=team _id=_id history_last=history_last serve_player=serve_player}}
+      {{ > App_game_edit_player player=1 team_id=team_id _id=_id history_last=history_last serve_player=serve_player}}
     </div>
   </div>
 </template>

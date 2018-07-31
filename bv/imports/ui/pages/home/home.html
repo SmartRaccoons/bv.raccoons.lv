@@ -9,6 +9,8 @@
   {{/if}}
   <h2>Last games</h2>
   <ul>
-    <li><a href=''>Some bold <strong>VS</strong> Super starts</a> <strong>in</strong> <a href=''>super stars</a> tournament</li>
+    {{#each game in games}}
+      <li><a href='{{ game.link_stats }}'>{{ game.title }}</a></li>
+    {{/each}}
   </ul>
 </template>

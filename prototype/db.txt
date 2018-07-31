@@ -2,6 +2,7 @@ team
 	id
 	owner
 	name
+	players []
 player
 	id
 	owner

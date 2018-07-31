@@ -8,7 +8,7 @@
   {{#with game }}
     {{#if id }}
       <div class='game' data-counter data-switch={{ switch_attr switch}} data-serve='{{ serve_player }}' data-ended='{{ ended }}'>
-        {{ > App_game_counter_team team=0 score=sets_last.[0] info=info.[0] serve_player=serve_player }}
+        {{ > App_game_counter_team team_id=0 team=teams_named.[0] score=sets_last.[0] info=info.[0] serve_player=serve_player }}
         <div class='game-score'>
           <div class='game-score-sets'>
             <span data-team='0'>{{ sets_result.[0] }}</span>:<span data-team='1'>{{ sets_result.[1] }}</span>
@@ -19,7 +19,7 @@
             </div>
           {{/each}}
         </div>
-        {{ > App_game_counter_team team=1 score=sets_last.[1] info=info.[1] serve_player=serve_player }}
+        {{ > App_game_counter_team team_id=1 team=teams_named.[1] score=sets_last.[1] info=info.[1] serve_player=serve_player }}
 
         {{ > App_game_history history=history_last_counter }}
       </div>
@@ -48,20 +48,20 @@
 </template>
 
 <template name='App_game_counter_team'>
-  <div class='game-team' data-team='{{ team }}'>
+  <div class='game-team' data-team='{{ team_id }}'>
     <div class='game-team-head'>
       <span class='game-team-head-score'>{{ score }}</span>
-      <span class='game-team-head-name'>Team {{ team }}</span>
+      <span class='game-team-head-name'>{{ team.name }}</span>
       <span class='game-team-head-info'>{{#if info}}{{ info }} ball{{/if}}</span>
     </div>
     <div class='game-team-player' data-player='0'>
       <div class='game-team-player-name'>
-        <button>Player 0</button>
+        <button>{{ team.players.[0] }}</button>
       </div>
     </div>
     <div class='game-team-player' data-player='1'>
       <div class='game-team-player-name'>
-        <button>Player 1</button>
+        <button>{{ team.players.[1] }}</button>
       </div>
     </div>
   </div>
