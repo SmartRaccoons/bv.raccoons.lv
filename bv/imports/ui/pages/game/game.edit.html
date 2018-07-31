@@ -1,28 +1,31 @@
 <template name='App_game_edit'>
-  <div class='game-settings'>
-    2 points adv.
-    <input name='advantage' type='checkbox' checked={{ settings.advantage }} />
-    switch hightlight
-    <select name='switch'>
-      {{#each value in settings_values.switch}}
-        <option value='{{ value }}' selected={{ equal value settings.switch }} >{{ value }}</option>
-      {{/each}}
-    </select>
-    sets
-    <select name='sets'>
-      {{#each value in sets_values}}
-        <option value='{{ value }}' selected={{ equal value settings.sets }}>{{ value }}</option>
-      {{/each}}
-    </select>
-    to <input name='set_points' type='number' value='{{ settings.set_points }}' />
-    last set <input name='set_last_points' type='number' value='{{ settings.set_last_points }}' />
-  </div>
   {{#with game }}
+    {{#if id}}
+      <div class='game-settings'>
+        2 points adv.
+        <input name='advantage' type='checkbox' checked={{ settings.advantage }} />
+        switch hightlight
+        <select name='switch'>
+          {{#each value in settings_values.switch}}
+            <option value='{{ value }}' selected={{ equal value settings.switch }} >{{ value }}</option>
+          {{/each}}
+        </select>
+        sets
+        <select name='sets'>
+          {{#each value in sets_values}}
+            <option value='{{ value }}' selected={{ equal value settings.sets }}>{{ value }}</option>
+          {{/each}}
+        </select>
+        to <input name='set_points' type='number' value='{{ settings.set_points }}' />
+        last set <input name='set_last_points' type='number' value='{{ settings.set_last_points }}' />
+      </div>
+    {{/if}}
+
     {{#if id }}
       <div class='game' {{ switch_attr switch}} data-serve='{{ serve_player }}' data-ended='{{ ended }}'>
         {{ > App_game_edit_team team=0 _id=_id score=sets_last.[0] info=info.[0] timeouts=timeouts.[0] history_last=history_last serve_player=serve_player }}
         <div class='game-score'>
-          <button class='game-score-switch' data-highlight='{{ switch_highlight }}' data-counter={{ switches }}>switch</button>
+          <button class='game-score-switch' data-highlight={{ switch_highlight }} data-counter={{ switches }}>switch</button>
           <div class='game-score-sets'>
             <span data-team='0'>{{ sets_result.[0] }}</span>:<span data-team='1'>{{ sets_result.[1] }}</span>
           </div>

@@ -1,0 +1,68 @@
+<template name='App_game_counter'>
+  <div class='game-settings'>
+    {{#each s in settings}}
+      {{s.text}} <input type='checkbox' name='{{ s.name }}' checked={{ s.value }} />
+    {{/each}}
+    <button>hide</button>
+  </div>
+  {{#with game }}
+    {{#if id }}
+      <div class='game' data-counter data-switch={{ switch_attr switch}} data-serve='{{ serve_player }}' data-ended='{{ ended }}'>
+        {{ > App_game_counter_team team=0 score=sets_last.[0] info=info.[0] serve_player=serve_player }}
+        <div class='game-score'>
+          <div class='game-score-sets'>
+            <span data-team='0'>{{ sets_result.[0] }}</span>:<span data-team='1'>{{ sets_result.[1] }}</span>
+          </div>
+          {{#each set in sets_played}}
+            <div class='game-score-history'>
+              <span data-team='0'>{{ set.[0] }}</span>:<span data-team='1'>{{ set.[1] }}</span>
+            </div>
+          {{/each}}
+        </div>
+        {{ > App_game_counter_team team=1 score=sets_last.[1] info=info.[1] serve_player=serve_player }}
+
+        {{ > App_game_history history=history_last_counter }}
+      </div>
+    {{ else }}
+      loading element....
+    {{/if}}
+  {{/with}}
+</template>
+
+<template name='App_game_history'>
+  <div class='game-history'>
+    {{#each h in history}}
+      <div class='game-history-entry'
+        data-team='{{ h.team.[0] }}'
+        data-point='{{ h.point }}'
+        data-action='{{ h.action }}'
+        >
+        <span data-el='0'
+        data-player='{{ h.team.[1] }}'
+        data-action='{{ h.action }}'
+        ></span>
+        <span data-el='1'></span>
+      </div>
+    {{/each}}
+  </div>
+</template>
+
+<template name='App_game_counter_team'>
+  <div class='game-team' data-team='{{ team }}'>
+    <div class='game-team-head'>
+      <span class='game-team-head-score'>{{ score }}</span>
+      <span class='game-team-head-name'>Team {{ team }}</span>
+      <span class='game-team-head-info'>{{#if info}}{{ info }} ball{{/if}}</span>
+    </div>
+    <div class='game-team-player' data-player='0'>
+      <div class='game-team-player-name'>
+        <button>Player 0</button>
+      </div>
+    </div>
+    <div class='game-team-player' data-player='1'>
+      <div class='game-team-player-name'>
+        <button>Player 1</button>
+      </div>
+    </div>
+  </div>
+</template>

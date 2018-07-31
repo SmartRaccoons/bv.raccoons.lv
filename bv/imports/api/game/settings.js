@@ -35,8 +35,8 @@ var values_callbacks = Object.keys(values).reduce(function (acc, value){
   }
   return acc;
 }, {});
-exports.values = values;
-exports.settings = function (v) {
+exports.settings_values = values;
+exports.settings_validate = function (v) {
   return Object.keys(values).reduce(function (acc, value){
     if (v && value in v) {
       acc[value] = values_callbacks[value](v[value]);
