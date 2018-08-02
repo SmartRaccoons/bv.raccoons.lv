@@ -86,8 +86,8 @@ Template.App_game_edit.events(Object.keys(settings_values).reduce((acc, pr)=> {
         }
       };
       events['mouseleave ' + element] = (event)=> clearTimeout(timeout);
-      events['mouseup ' + element] = (event)=> clearTimeout(timeout);
-      events['mousedown ' + element] = function(event) {
+      events['touchend ' + element] = events['mouseup ' + element] = (event)=> clearTimeout(timeout);
+      events['touchstart ' + element] = events['mousedown ' + element] = function(event) {
         let args = Array.prototype.slice.call(arguments);
         timeout = setTimeout(()=>{
           long_press = true;

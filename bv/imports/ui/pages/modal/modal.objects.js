@@ -6,7 +6,7 @@ Template.modal_objects.onCreated(function () {
   this.data.onCreated.bind(this)()
 });
 Template.modal_objects.onRendered(function () {
-  this.$('input').focus();
+  // this.$('input').focus();
 });
 
 Template.modal_objects.events({
