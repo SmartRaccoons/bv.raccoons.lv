@@ -2,6 +2,8 @@ import { Meteor } from 'meteor/meteor';
 import { Mongo } from 'meteor/mongo';
 import { check, Match } from 'meteor/check';
 import { settings_validate } from './settings';
+import { permissions } from '../permissions'
+import { Team, Player } from '../team/model';
 
 
 export const Game = new Mongo.Collection('game');
@@ -23,9 +25,20 @@ export const actions_default = [
   {ev: 'b', points: 1, text: 'Block'},
   {ev: 'e', points: -1, text: 'Error'},
 ];
+
+let check_team = function(team, length = 0) {
+  if(Array.isArray(team)) {
+    return team.length === length && team.filter((v)=> { !check_team(v) }).length === 0;
+  }
+  return (team === 0 || team === 1)
+};
+
 Game.helpers({
   update_attr(attr) {
     Game.update(this._id, { $set: attr });
+  },
+  link_stats(){
+    return ['/', this.id, '/stats'].join('');
   },
   sets_result() {
     return this.sets_played().reduce((acc, v)=>{
@@ -109,11 +122,11 @@ Game.helpers({
     let last_index = this.sets.length - 1;
     let team = params.team[0];
     let player = params.team[1];
-    if (!(team === 0 || team === 1)) {
+    if (!check_team(team)) {
       return;
     }
     let opponent = (team + 1) % 2;
-    if (player && !(player === 0 || player === 1)) {
+    if (player && !check_team(player)) {
       return;
     }
     if (actions_default.filter((v)=> v.ev === params.action).length === 0) {
@@ -290,50 +303,157 @@ Game.helpers({
       serve_order: this.serve_order,
     }, attr_update));
   },
-});
-
-permissions = {
-  login: function (fn){
-    return function () {
-      if (!this.userId) {
-        throw new Meteor.Error('not-authorized');
-      }
-      return fn.apply(this, arguments)
-    }
+  title() {
+    return this.teams_named().map((team)=> {
+      return team.name + ' ('  + team.players.join(', ') + ')';
+    }).join(' VS ');
   },
-  owner: function (Collection, fn) {
-    return permissions.login(function (params) {
-        let ob;
-        if (params && params._id) {
-          check(params._id, String);
-          ob = Collection.findOne(params._id);
-        } else if (params && params.id) {
-          check(params.id, Match.Integer);
-          ob = Collection.findOne({id: params.id});
-        }
-        if (!(ob && ob.owner === this.userId)) {
-          throw new Meteor.Error('not-authorized');
-        }
-        return fn.apply(this, Array.from(arguments).concat([ob]));
+  teams_named() {
+    return [0, 1].map((team)=> {
+      let result = {
+        name: 'Team ' + (team + 1),
+        players: [0, 1].map((player)=> {
+          return 'Player ' + (team * 2 + player + 1);
+        }),
+      };
+      if (!this.teams[team]) {
+        return result;
+      }
+      if (Array.isArray(this.teams[team])) {
+        this.teams[team].forEach((player, i)=>{
+          if (player) {
+            let player_ob = Player.findOne(player);
+            if (player_ob) {
+              result.players[i] = Player.findOne(player).name;
+            }
+          }
+        });
+        return result;
+      }
+      let team_ob = Team.findOne(this.teams[team]);
+      if (!team_ob) {
+        return result;
+      }
+      return Object.assign(result, {
+        'name': team_ob.name,
+        'players': team_ob.players_name(),
+      });
     });
   },
-};
+  _player_partner(team_saved, player_id, partner) {
+    if (!team_saved) {
+      return null;
+    }
+    if(!Array.isArray(team_saved)) {
+      let team = Team.findOne(team_saved);
+      if (team.players[partner] !== player_id) {
+        return team.players[partner];
+      }
+      return null;
+    }
+    if (team_saved[partner] !== player_id) {
+      return team_saved[partner];
+    }
+    return null;
+  },
+  player_update(params) {
+    if (!check_team(params.team, 2)) {
+      return;
+    }
+    let partner = (params.team[1] + 1) % 2;
+    let team = null;
+    let partner_id = this._player_partner(this.teams[params.team[0]], params.player, partner);
+    if (partner_id) {
+      team = Team.findOne({
+        $or:  [
+          { players: {$eq: [partner_id, params.player ]} },
+          { players: {$eq: [params.player, partner_id ]} },
+        ],
+      });
+      if (team) {
+        this.teams[params.team[0]] = team._id;
+      } else {
+        this.teams[params.team[0]] = [null, null];
+        this.teams[params.team[0]][params.team[1]] = params.player;
+        this.teams[params.team[0]][partner] = partner_id;
+      }
+    } else {
+      this.teams[params.team[0]] = [null, null];
+      this.teams[params.team[0]][params.team[1]] = params.player;
+    }
+    this.update_attr({teams: this.teams});
+  },
+  team_update(params) {
+    if (!check_team(params.team)) {
+      return;
+    }
+    let team = Team.findOne(params.team_id);
+    if (!team) {
+      return;
+    }
+    let opponnet = (params.team + 1) % 2;
+    this.teams[params.team] = params.team_id;
+    if (this.teams[opponnet] === this.teams[params.team]) {
+      this.teams[opponnet] = null;
+    }
+    this.update_attr({teams: this.teams});
+  },
+});
 
 if (Meteor.isServer) {
-  Meteor.publish('game.public', function (id) {
-    let params = {};
-    if (id) {
-      params.id = parseInt(id);
-    }
-    return Game.find(params, {sort: {id: -1}});
-  });
-  Meteor.publish('game.private', function (id) {
-    let params = {owner: this.userId};
-    if (id) {
-      params.id = parseInt(id);
-    }
-    return Game.find(params, {sort: {id: -1}});
-  });
+  import { publishComposite } from 'meteor/reywood:publish-composite';
+  let publishComposite_fn = function (owner, limit = 10000) {
+    return function(id) {
+      let params = {};
+      if (owner) {
+        params.owner = this.userId;
+      }
+      if (id) {
+        params.id = parseInt(id);
+      }
+      return {
+        find(){
+          return Game.find(params, {sort: {created: -1}}, {limit: limit})
+        },
+        children: [
+          {
+            find(game) {
+              let teams = game.teams.filter((team)=> !Array.isArray(team));
+              if (teams.length === 0) {
+                return null;
+              }
+              return Team.find({_id: { $in: teams }});
+            },
+            children: [
+              {
+                find(team) {
+                  if (!team) {
+                    return;
+                  }
+                  return Player.find({_id: { $in: team.players }});
+                },
+              },
+            ],
+          }, {
+            find(game) {
+              let players = [];
+              game.teams.forEach((team)=>{
+                if (Array.isArray(team)) {
+                  players = players.concat(team.filter((player)=> !!player));
+                }
+              });
+              if (players.length === 0) {
+                return null;
+              }
+              return Player.find({_id: { $in: players }});
+            }
+          },
+        ]
+      }
+    };
+  };
+  publishComposite('game.private', publishComposite_fn(true));
+  publishComposite('game.public', publishComposite_fn(false, 100));
   Meteor.publish('user', function () {
     return Meteor.users.find(this.userId);
   });
@@ -345,6 +465,7 @@ if (Meteor.isServer) {
         id: id,
         created: new Date(),
         owner: this.userId,
+        tournament: null,
         serve_order: [0, 0],
         serve: [0, 0],
         'switch': false,
@@ -357,7 +478,14 @@ if (Meteor.isServer) {
       });
       return id;
     }),
+    'game.update.player': permissions.owner(Game, function (params, ob) {
+      ob.player_update({team: params.team, player: params.player});
+    }),
+    'game.update.team': permissions.owner(Game, function (params, ob) {
+      ob.team_update({team: params.team, team_id: params.team_id});
+    }),
   });
+
 }
 Meteor.methods({
   'game.update.settings': permissions.owner(Game, function (params, ob) {

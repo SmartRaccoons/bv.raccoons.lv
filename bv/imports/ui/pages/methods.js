@@ -9,6 +9,7 @@ export const call = function() {
   }
   args.push(function (err) {
     if (err) {
+      console.info(err);
       alert(err.error);
     }
     if (callback) {

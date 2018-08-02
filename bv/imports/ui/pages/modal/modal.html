@@ -1,0 +1,15 @@
+<template name='modal'>
+  <div class='popup'>
+    <div class='popup-content'>
+      <button data-action='close'>&times;</button>
+      {{#if head}}
+        <h1>{{ head }}</h1>
+      {{/if}}
+      {{#if template }}
+        {{> Template.dynamic template=template data=data}}
+      {{else}}
+        {{ content }}
+      {{/if}}
+    </div>
+  </div>
+</template>
