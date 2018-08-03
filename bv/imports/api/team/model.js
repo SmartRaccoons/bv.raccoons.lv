@@ -34,15 +34,21 @@ Team.helpers({
 
 if (Meteor.isServer) {
 
-  Meteor.publish('team.private', function () {
-    return Team.find({owner: this.userId});
+  Meteor.publish('team.private', function (owner) {
+    check(owner, String)
+    return Team.find({
+      owner: owner,
+    });
   });
-  Meteor.publish('player.private', function () {
-    return Player.find({owner: this.userId});
+  Meteor.publish('player.private', function (owner) {
+    check(owner, String)
+    return Player.find({
+      owner: owner,
+    });
   });
 
   Meteor.methods({
-    'player.insert': permissions.login(function(params) {
+    'player.insert': permissions.shared_check(true, function(params) {
       if (!params) {
         throw new Meteor.Error('not-authorized');
       }
@@ -50,13 +56,13 @@ if (Meteor.isServer) {
       return Player.insert({
         name: params.name,
         created: new Date(),
-        owner: this.userId,
+        owner: params.owner,
       });
     }),
   });
 
   Meteor.methods({
-    'team.insert': permissions.login(function(params) {
+    'team.insert': permissions.shared_check(true, function(params) {
       if (!params) {
         throw new Meteor.Error('not-authorized');
       }
@@ -79,7 +85,7 @@ if (Meteor.isServer) {
         name: params.name,
         players: [params.players[0], params.players[1]],
         created: new Date(),
-        owner: this.userId,
+        owner: params.owner,
       });
     }),
   });

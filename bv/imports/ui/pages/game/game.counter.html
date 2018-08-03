@@ -5,10 +5,12 @@
     {{/each}}
     <button>hide</button>
   </div>
-  {{#with game }}
-    {{#if id }}
+  {{#unless game}}
+    Loading element...
+  {{else}}
+    {{#with game }}
       <div class='game' data-counter data-switch={{ switch_attr switch}} data-serve='{{ serve_player }}' data-ended='{{ ended }}'>
-        {{ > App_game_counter_team team_id=0 team=teams_named.[0] score=sets_last.[0] info=info.[0] serve_player=serve_player }}
+        {{ > App_game_counter_team team_id=0 team=teams_named.[0] score=sets_last.[0] info=info.[0] history_last_timeout=history_last_timeout.[0] serve_player=serve_player }}
         <div class='game-score'>
           <div class='game-score-sets'>
             <span data-team='0'>{{ sets_result.[0] }}</span>:<span data-team='1'>{{ sets_result.[1] }}</span>
@@ -19,14 +21,12 @@
             </div>
           {{/each}}
         </div>
-        {{ > App_game_counter_team team_id=1 team=teams_named.[1] score=sets_last.[1] info=info.[1] serve_player=serve_player }}
+        {{ > App_game_counter_team team_id=1 team=teams_named.[1] score=sets_last.[1] info=info.[1] history_last_timeout=history_last_timeout.[1] serve_player=serve_player }}
 
         {{ > App_game_history history=history_last_counter }}
       </div>
-    {{ else }}
-      loading element....
-    {{/if}}
-  {{/with}}
+    {{/with}}
+  {{/unless}}
 </template>
 
 <template name='App_game_history'>
@@ -53,6 +53,9 @@
       <span class='game-team-head-score'>{{ score }}</span>
       <span class='game-team-head-name'>{{ team.name }}</span>
       <span class='game-team-head-info'>{{#if info}}{{ info }} ball{{/if}}</span>
+      {{#if timeout_history }}
+        <span class='game-team-head-timeout-counter' data-sec='{{ timeout_countdown }}'></span>
+      {{/if}}
     </div>
     <div class='game-team-player' data-player='0'>
       <div class='game-team-player-name'>

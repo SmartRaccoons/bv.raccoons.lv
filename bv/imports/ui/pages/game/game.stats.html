@@ -1,6 +1,8 @@
 <template name='App_game_stats'>
-  {{#with game }}
-    {{#if id }}
+  {{#unless game}}
+    Loading element...
+  {{else}}
+    {{#with game }}
       <div class='game-stats'>
         {{ > App_game_stats_team team=teams_named.[0] }}
         {{ > App_game_score score=sets_result}}
@@ -31,12 +33,19 @@
             </div>
           {{/each}}
         </div>
+        <div class='game-stats-data'>
+          Started: {{ format_date started }}<br />
+          Ended:
+          {{#if ended }}
+            {{ format_date ended }} ({{ format_length game_length }})
+          {{else}}
+            In progress
+          {{/if}}
+        </div>
       </div>
       <a href='/{{ id }}'>Score table</a>
-    {{ else }}
-      loading element....
-    {{/if}}
-  {{/with}}
+    {{/with}}
+  {{/unless}}
 </template>
 
 <template name='App_game_score'>

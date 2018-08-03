@@ -6,11 +6,13 @@ import { Game} from '../../../api/game/model';
 
 
 Template.App_home.onCreated(function () {
-  Meteor.subscribe('game.public');
+  this.autorun(() => {
+    this.subscribe('game.public');
+  });
 });
 
 Template.App_home.helpers({
   'games'() {
-    return Game.find({owner: Meteor.userId()}, {sort: {created: -1}});
+    return Game.find({}, {sort: {created: -1}});
   },
 })
