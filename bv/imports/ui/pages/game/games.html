@@ -1,19 +1,41 @@
 <template name='App_game'>
   <button class='create'>create new</button>
-  <ul>
+  {{#each share in share_user}}
+    <button class='create' data-id='{{ share.owner }}'>create for {{ share.owner_name }}</button>
+  {{/each}}
+
+  <ul class='game-list'>
     {{#each games}}
        {{> game}}
     {{/each}}
   </ul>
 
+  <p>
+    Allow others to create and manage games in Your account<br />
+    {{> inputAutocomplete settings=settings_share name="share" placeholder="Type profile name" }}
+  </p>
+  {{#if share_owner.count }}
+    Already sharing with:
+    <ul class='games-list-share'>
+      {{#each share in share_owner}}
+        <li data-id='{{ share._id }}' >{{ share.user_name }} <button>unshare</button></li>
+      {{/each}}
+    </ul>
+  {{/if}}
 </template>
 
 <template name='game'>
   <li>
-    <a href='{{ link }}'>
-      {{ title }}
-    </a>
+    <a href='{{ link_edit }}'>{{ title }}</a>
     <a href='{{ link_stats }}'>stats</a>
-    <button class='delete'>&times;</button>
+    {{#unless owner_user}}
+      (shared)
+    {{else}}
+      <button data-edited={{ edited }} class='delete'>&times;</button>
+    {{/unless}}
   </li>
+</template>
+
+<template name="game_autocomplete">
+  <span class="label">{{ profile.name }}</span>
 </template>

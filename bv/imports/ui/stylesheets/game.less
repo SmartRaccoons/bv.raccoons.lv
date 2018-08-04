@@ -36,6 +36,9 @@
       &-player-name {
         height: 100%;
       }
+      &-head-score {
+        font-size: 14em;
+      }
     }
   }
   &-settings {
@@ -114,6 +117,9 @@
           }
         }
       }
+    }
+    &-data {
+      grid-column: ~"1/4";
     }
   }
   &-history {
@@ -212,7 +218,8 @@
     &[data-team='0'] {
       grid-column: ~"1/3";
       .game-team-head {
-        &-timeout {
+        &-timeout,
+        &-timeout-counter {
           left: 0;
         }
         &-info, &-name {
@@ -223,7 +230,9 @@
     &[data-team='1'] {
       grid-column: ~"-3/-1";
       .game-team-head {
-        &-timeout, &-name {
+        &-timeout,
+        &-timeout-counter,
+        &-name {
           right: 0;
         }
         &-info, &-name {
@@ -267,6 +276,17 @@
           &::after {
             display: none;
           }
+        }
+      }
+      &-timeout-counter {
+        position: absolute;
+        bottom: 0;
+        &::after {
+          content: attr(data-sec);
+          font-size: 2em;
+        }
+        &::before {
+          content: 'T';
         }
       }
       &-info {
@@ -361,7 +381,8 @@
     .game-team {
       transform: scale(-1, 1);
       &[data-team='0'] .game-team-head {
-        &-timeout {
+        &-timeout,
+        &-timeout-counter {
           right: 0;
           left: auto;
         }
@@ -370,7 +391,8 @@
         }
       }
       &[data-team='1'] .game-team-head {
-        &-timeout {
+        &-timeout,
+        &-timeout-counter {
           left: 0;
         }
         &-info, &-name {
@@ -387,5 +409,11 @@
         transform: scale(-1, 1);
       }
     }
+  }
+}
+
+.game-list {
+  a {
+    margin: 0 0.5em;
   }
 }

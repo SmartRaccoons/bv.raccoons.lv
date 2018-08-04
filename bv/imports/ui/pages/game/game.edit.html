@@ -1,7 +1,11 @@
 <template name='App_game_edit'>
-  {{#with game }}
-    {{#if id}}
+  {{#unless game}}
+    Loading element...
+    <a href='{{ back_link }}'>Back</a>
+  {{else}}
+    {{#with game }}
       <div class='game-settings'>
+        <a href='{{ back_link }}'>Back</a>
         2 points adv.
         <input name='advantage' type='checkbox' checked={{ settings.advantage }} />
         switch hightlight
@@ -19,11 +23,9 @@
         to <input name='set_points' type='number' value='{{ settings.set_points }}' />
         last set <input name='set_last_points' type='number' value='{{ settings.set_last_points }}' />
       </div>
-    {{/if}}
 
-    {{#if id }}
       <div class='game' {{ switch_attr switch}} data-serve='{{ serve_player }}' data-ended='{{ ended }}'>
-        {{ > App_game_edit_team teams=teams team=teams_named.[0] team_id=0 _id=_id score=sets_last.[0] info=info.[0] timeouts=timeouts.[0] history_last=history_last serve_player=serve_player }}
+        {{ > App_game_edit_team teams=teams team=teams_named.[0] team_id=0 owner=owner _id=_id score=sets_last.[0] info=info.[0] timeouts=timeouts.[0] history_last=history_last history_last_timeout=history_last_timeout.[0] serve_player=serve_player }}
         <div class='game-score'>
           <button class='game-score-switch' data-highlight={{ switch_highlight }} data-counter={{ switches }}>switch</button>
           <div class='game-score-sets'>
@@ -38,12 +40,10 @@
             </div>
           {{/each}}
         </div>
-        {{ > App_game_edit_team teams=teams team=teams_named.[1] team_id=1 _id=_id score=sets_last.[1] info=info.[1] timeouts=timeouts.[1] history_last=history_last serve_player=serve_player }}
+        {{ > App_game_edit_team teams=teams team=teams_named.[1] team_id=1 owner=owner _id=_id score=sets_last.[1] info=info.[1] timeouts=timeouts.[1] history_last=history_last history_last_timeout=history_last_timeout.[1] serve_player=serve_player }}
       </div>
-    {{ else }}
-      loading element....
-    {{/if}}
-  {{/with}}
+    {{/with}}
+  {{/unless}}
 </template>
 
 <template name='App_game_edit_team'>
@@ -53,6 +53,9 @@
       <span class='game-team-head-name'>{{ team.name }}</span>
       <span class='game-team-head-info'>{{#if info}}{{ info }} ball{{/if}}</span>
       <button class='game-team-head-timeout' data-timeouts='{{ timeouts }}'>timeout</button>
+      {{#if timeout_history }}
+        <span class='game-team-head-timeout-counter' data-sec='{{ timeout_countdown }}'></span>
+      {{/if}}
     </div>
     <div class='game-team-player' data-player='0'>
       <div class='game-team-player-name'>

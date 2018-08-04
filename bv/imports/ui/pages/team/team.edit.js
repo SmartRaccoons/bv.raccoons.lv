@@ -31,18 +31,18 @@ export const ModalTeam = (params)=>{
       });
     },
     callback_new(name) {
-      call('team.insert', {name: name, players: params.teams}, (err, id)=> {
+      call('team.insert', {name: name, owner: params.owner, players: params.teams}, (err, id)=> {
         if (id) {
           call('game.update.team', {_id: this._id, team_id: id, team: this.team});
         }
       });
     },
     objects() {
-      return Team.find({}, {sort: {created: -1}});
+      return Team.find({owner: params.owner}, {sort: {created: -1}});
     },
     onCreated: function () {
       this.autorun(() => {
-        this.subscribe('team.private');
+        this.subscribe('team.private', params.owner);
       });
     },
   }, params));

@@ -32,3 +32,5 @@ konecty:mongo-counter
 dburles:collection-helpers
 session
 reywood:publish-composite
+mizzao:autocomplete
+flyandi:reactive-countdown

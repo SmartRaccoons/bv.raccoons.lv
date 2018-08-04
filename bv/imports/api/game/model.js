@@ -4,6 +4,7 @@ import { check, Match } from 'meteor/check';
 import { settings_validate } from './settings';
 import { permissions } from '../permissions'
 import { Team, Player } from '../team/model';
+import { Share } from '../share/model';
 
 
 export const Game = new Mongo.Collection('game');
@@ -37,8 +38,20 @@ Game.helpers({
   update_attr(attr) {
     Game.update(this._id, { $set: attr });
   },
+  link() {
+    return ['/', this.id].join('');
+  },
   link_stats(){
     return ['/', this.id, '/stats'].join('');
+  },
+  game_length() {
+    let ended = this.ended ? this.ended : new Date();
+    let diff = Math.floor( ( ended.getTime() - this.started.getTime() ) / 1000 );
+    let hours = Math.floor(diff / (60 * 60));
+    diff = diff - hours * 60 * 60
+    let minutes = Math.floor(diff / (60));
+    diff = diff - minutes * 60;
+    return [hours, minutes, diff];
   },
   sets_result() {
     return this.sets_played().reduce((acc, v)=>{
@@ -54,11 +67,22 @@ Game.helpers({
     return this.sets[this.sets.length - 1];
   },
   _set_is_last() {
-    return this.sets.length >= this.settings.sets
+    let half = this.settings.sets / 2;
+    return this.sets.reduce((acc, v)=> {
+      if (v[0] > v[1]) {
+        acc[0]++;
+      } else {
+        acc[1]++;
+      }
+      return acc;
+    }, [0, 0]).filter((v)=> v > half).length > 0;
+  },
+  _set_points_max() {
+    return (this.sets.length >= this.settings.sets ? this.settings.set_last_points : this.settings.set_points);
   },
   _set_point_diff(advantage) {
     let set = this.sets.slice(-1)[0];
-    let points_end = (this._set_is_last() ? this.settings.set_last_points : this.settings.set_points) - advantage;
+    let points_end = this._set_points_max() - advantage;
     if (set[0] >= points_end || set[1] >= points_end) {
       if (!this.settings.advantage) {
         return set[0] > set[1] ? 0 : 1;
@@ -94,7 +118,7 @@ Game.helpers({
     let history_switched = history && history.length > 0 && history[history.length-1].action === 'SW';
     let points = this.sets[this.sets.length - 1];
     let points_total = points[0] + points[1];
-    let points_max = (this._set_is_last() ? this.settings.set_last_points : this.settings.set_points);
+    let points_max = this._set_points_max();
     if (this.settings.switch === 'set') {
       return this.sets.length > 1 && points_total === 0 && !history_switched;
     }
@@ -222,6 +246,15 @@ Game.helpers({
       collect.push({action: 'SET'})
     }
     return collect;
+  },
+  history_last_timeout() {
+    let history_last = this.history_last_counter(1)[0];
+    let result = [false, false];
+    if (!(history_last && history_last.action === 'T')) {
+      return result;
+    }
+    result[history_last.team[0]] = true;
+    return result;
   },
   history_all() {
     return this.sets.map((v, i)=> {
@@ -403,13 +436,16 @@ Game.helpers({
 if (Meteor.isServer) {
   import { publishComposite } from 'meteor/reywood:publish-composite';
   let publishComposite_fn = function (owner, limit = 10000) {
-    return function(id) {
+    return function(id, gt_id) {
       let params = {};
       if (owner) {
-        params.owner = this.userId;
+        params.owner = {$in: [this.userId].concat( permissions.shared_owners(this.userId) )};
       }
       if (id) {
         params.id = parseInt(id);
+      }
+      if (gt_id) {
+        params.id = {$gt: parseInt(gt_id)};
       }
       return {
         find(){
@@ -447,6 +483,10 @@ if (Meteor.isServer) {
               }
               return Player.find({_id: { $in: players }});
             }
+          }, {
+            find(game) {
+              return Share.find({owner: game.owner});
+            }
           },
         ]
       }
@@ -459,12 +499,12 @@ if (Meteor.isServer) {
   });
   import { incrementCounter } from '../counter/model';
   Meteor.methods({
-    'game.insert': permissions.login(function() {
+    'game.insert': permissions.shared_check(false, function(params) {
       id = incrementCounter('game');
       Game.insert({
         id: id,
         created: new Date(),
-        owner: this.userId,
+        owner: (params && params.owner) ? params.owner : this.userId,
         tournament: null,
         serve_order: [0, 0],
         serve: [0, 0],
@@ -478,17 +518,16 @@ if (Meteor.isServer) {
       });
       return id;
     }),
-    'game.update.player': permissions.owner(Game, function (params, ob) {
+    'game.update.player': permissions.owner_shared(Game, function (params, ob) {
       ob.player_update({team: params.team, player: params.player});
     }),
-    'game.update.team': permissions.owner(Game, function (params, ob) {
+    'game.update.team': permissions.owner_shared(Game, function (params, ob) {
       ob.team_update({team: params.team, team_id: params.team_id});
     }),
   });
-
 }
 Meteor.methods({
-  'game.update.settings': permissions.owner(Game, function (params, ob) {
+  'game.update.settings': permissions.owner_shared(Game, function (params, ob) {
     let settings = settings_validate(params.settings);
     ob.update_attr({settings: settings})
     Meteor.users.update(this.userId, {
@@ -497,19 +536,19 @@ Meteor.methods({
       }
     });
   }),
-  'game.update.switch': permissions.owner(Game, function (_, ob) {
+  'game.update.switch': permissions.owner_shared(Game, function (_, ob) {
     ob.sets_update_switch();
   }),
-  'game.update.point': permissions.owner(Game, function (params, ob) {
+  'game.update.point': permissions.owner_shared(Game, function (params, ob) {
     ob.sets_update({team: params.team, action: params.action});
   }),
-  'game.update.timeout': permissions.owner(Game, function (params, ob) {
+  'game.update.timeout': permissions.owner_shared(Game, function (params, ob) {
     ob.sets_update_timeout({team: params.team});
   }),
-  'game.update.serve': permissions.owner(Game, function (params, ob) {
+  'game.update.serve': permissions.owner_shared(Game, function (params, ob) {
     ob.serve_update({serve: params.serve});
   }),
-  'game.update.undo': permissions.owner(Game, function (params, ob) {
+  'game.update.undo': permissions.owner_shared(Game, function (params, ob) {
     ob.undo();
   }),
   'game.remove': permissions.owner(Game, function(_, ob) {

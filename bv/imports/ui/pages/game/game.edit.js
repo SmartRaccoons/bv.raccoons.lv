@@ -5,6 +5,8 @@ import { settings_values } from '../../../api/game/settings';
 import { call } from '../methods';
 import { ModalPlayer } from '../team/player.edit';
 import { ModalTeam } from '../team/team.edit';
+import { FlowRouter } from 'meteor/kadira:flow-router';
+import { game_counter_helpers } from './game.common';
 
 
 Template.App_game_edit.onCreated(function () {
@@ -14,6 +16,9 @@ Template.App_game_edit.onCreated(function () {
     this.subscribe('game.private', id);
   });
 });
+
+
+Template.App_game_edit_team.helpers(game_counter_helpers);
 
 
 Template.App_game_edit_player.helpers({
@@ -38,11 +43,16 @@ Template.App_game_edit.helpers({
   'sets_values'() {
      return Array.from({length: settings_values.sets.range[1] - settings_values.sets.range[0] + 1},(v,k)=> settings_values.sets.range[0] + k)
   },
-  'game'() { return Game.findOne({id: parseInt(this.id())}); },
+  'game'() {
+    return Game.findOne({id: parseInt(this.id())});
+  },
   'switch_attr'(v) {
     if (v) {
       return {'data-switch': ''};
     }
+  },
+  'back_link'() {
+    return FlowRouter.path('App.game');
   },
 });
 
@@ -125,10 +135,20 @@ Template.App_game_edit.events(Object.keys(settings_values).reduce((acc, pr)=> {
     },
   }, {
     '.game-team-head'(event) {
-      ModalTeam({_id: this._id, teams: this.teams[team_get(event)], team: team_get(event)});
+      ModalTeam({
+        _id: this._id,
+        owner: this.owner,
+        teams: this.teams[team_get(event)],
+        team: team_get(event)
+      });
     },
     '.game-team-player-name button'(event) {
-      ModalPlayer({_id: this._id, team: team_get(event), player: player_get(event)});
+      ModalPlayer({
+        _id: this._id,
+        owner: this.owner,
+        team: team_get(event),
+        player: player_get(event)
+      });
     },
   }, 1000));
 })();
