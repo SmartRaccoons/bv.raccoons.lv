@@ -30,7 +30,7 @@ Template.App_game_counter.onCreated(function () {
 let settings = [
   {name: 'settings_switching', text: 'Switching', default: true},
   {name: 'settings_reverse_switch', text: 'Reverse switch', default: false},
-  {name: 'settings_follow', text: 'Follow next game', default: true},
+  {name: 'settings_follow', text: 'Follow next game', default: false},
 ];
 settings.forEach((v)=>{
   Session.setDefault(v.name, v.default);
