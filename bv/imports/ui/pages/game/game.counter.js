@@ -20,7 +20,7 @@ Template.App_game_counter.onCreated(function () {
     let game = Game.findOne({id: parseInt(id)});
     if (game && game.ended) {
       let game_new = Game.findOne({owner: game.owner, started: {$gt: game.ended}}, {sort: {created: -1}});
-      if (game_new) {
+      if (game_new && game_new._id !== game._id) {
         FlowRouter.go('App.game.counter', { id: game_new.id });
       }
     }
