@@ -9,6 +9,16 @@ import { FlowRouter } from 'meteor/kadira:flow-router';
 import { game_counter_helpers } from './game.common';
 
 
+let settings = [
+  {name: 'settings_switching', text: 'Switching', default: true},
+  {name: 'settings_reverse_switch', text: 'Reverse switch', default: false},
+  {name: 'settings_follow', text: 'Follow next game', default: false},
+];
+settings.forEach((v)=>{
+  Session.setDefault(v.name, v.default);
+});
+
+
 Template.App_game_counter.onCreated(function () {
   let id = parseInt(this.data.id());
   this.autorun(() => {
@@ -25,15 +35,6 @@ Template.App_game_counter.onCreated(function () {
       }
     }
   });
-});
-
-let settings = [
-  {name: 'settings_switching', text: 'Switching', default: true},
-  {name: 'settings_reverse_switch', text: 'Reverse switch', default: false},
-  {name: 'settings_follow', text: 'Follow next game', default: false},
-];
-settings.forEach((v)=>{
-  Session.setDefault(v.name, v.default);
 });
 
 
@@ -65,11 +66,9 @@ Template.App_game_counter.events(Object.assign({
     Template.instance().$('.game').attr('data-full', '');
   },
 }, settings.reduce((acc, v)=> {
-  acc['change [name="' + v.name + '"]'] = (function (name) {
-    return function(event) {
-      Session.set(name, event.target.checked);
-    };
-  }(v.name))
+  acc['change input[name="' + v.name + '"]'] = function () {
+    Session.set($(event.target).attr('name'), event.target.checked);
+  };
   return acc;
 }, {})) );
 
