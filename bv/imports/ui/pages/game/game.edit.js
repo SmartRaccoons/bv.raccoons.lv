@@ -7,6 +7,7 @@ import { ModalPlayer } from '../team/player.edit';
 import { ModalTeam } from '../team/team.edit';
 import { FlowRouter } from 'meteor/kadira:flow-router';
 import { game_counter_helpers } from './game.common';
+import { Modal } from '../modal/modal';
 
 
 Template.App_game_edit.onCreated(function () {
@@ -56,7 +57,7 @@ Template.App_game_edit.helpers({
   },
 });
 
-Template.App_game_edit.events(Object.keys(settings_values).reduce((acc, pr)=> {
+Template.App_game_edit.events(Object.assign(Object.keys(settings_values).reduce((acc, pr)=> {
   acc['change [name="' + pr + '"]'] = ((pr)=> {
     return function(event) {
       let params = {};
@@ -73,7 +74,21 @@ Template.App_game_edit.events(Object.keys(settings_values).reduce((acc, pr)=> {
     };
   })(pr);
   return acc;
-}, {}));
+}, {}), {
+  'click .game-score-data button'() {
+    return Modal.create({
+      head: 'Score table link',
+      content: `
+        <p><input type='text' value='${this.link_full()}'/></p>
+        <p>Open this link on any other browser or device and Your are done</p>
+        <p>Score result will synchronize between stats and score table automatically</p>
+        `,
+      buttons: [
+        'ok',
+      ]
+    });
+  },
+} ));
 
 (function (){
   let team_get = (event)=> parseInt($(event.target).closest('[data-team]').attr('data-team'));

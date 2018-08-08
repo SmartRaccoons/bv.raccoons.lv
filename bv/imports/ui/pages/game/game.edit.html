@@ -39,6 +39,10 @@
               <span data-team='0'>{{ set.[0] }}</span>:<span data-team='1'>{{ set.[1] }}</span>
             </div>
           {{/each}}
+          <div class='game-score-data'>
+            <button>score table link</button>
+            <p>Press and hold on Team/Player to change</p>
+          </div>
         </div>
         {{ > App_game_edit_team teams=teams team=teams_named.[1] team_id=1 owner=owner _id=_id score=sets_last.[1] info=info.[1] timeouts=timeouts.[1] history_last=history_last history_last_timeout=history_last_timeout.[1] serve_player=serve_player }}
       </div>

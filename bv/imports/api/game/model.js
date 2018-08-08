@@ -41,6 +41,9 @@ Game.helpers({
   link() {
     return ['/', this.id].join('');
   },
+  link_full() {
+    return 'bv.raccoons.lv' + this.link()
+  },
   link_stats(){
     return ['/', this.id, '/stats'].join('');
   },

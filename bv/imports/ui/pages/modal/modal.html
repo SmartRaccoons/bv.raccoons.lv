@@ -8,7 +8,14 @@
       {{#if template }}
         {{> Template.dynamic template=template data=data}}
       {{else}}
-        {{ content }}
+        {{{ content }}}
+      {{/if}}
+      {{#if buttons }}
+        <div class='popup-actions'>
+          {{#each button in buttons}}
+            <button data-call='{{ button.event }}'>{{ button.text }}</button>
+          {{/each}}
+        </div>
       {{/if}}
     </div>
   </div>
