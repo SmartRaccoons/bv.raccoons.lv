@@ -33,6 +33,8 @@
   <div class='game-history'>
     {{#each h in history}}
       <div class='game-history-entry'
+        data-serve-team='{{ h.serve.[0] }}'
+        data-serve-player='{{ h.serve.[1] }}'
         data-team='{{ h.team.[0] }}'
         data-point='{{ h.point }}'
         data-action='{{ h.action }}'

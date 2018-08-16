@@ -131,6 +131,7 @@
     display: grid;
     grid-gap: 0.5em;
     grid-template-columns: 4fr 1fr 4fr;
+    position: relative;
     span {
       display: none;
       grid-row: ~"1/2";
@@ -140,18 +141,29 @@
     [data-el='0'] {
       grid-gap: 0.5em;
       grid-template-columns: 1fr 1fr;
-      &::after {
-        content: "\00a0" attr(data-action) "\00a0" ;
+      &::before {
+        content: "\00a0" attr(data-action) "\00a0";
         text-align: center;
         text-transform: uppercase;
         font-size: 0.8em;
         align-self: center;
       }
-      &[data-player='0']::after {
+      &[data-player='0']::before {
         grid-column: ~"1/2";
       }
-      &[data-player='1']::after {
+      &[data-player='1']::before {
         grid-column: ~"2/3";
+      }
+    }
+    &[data-point='1'], &[data-point='-1'] {
+        &::after {
+        content: '';
+        display: block;
+        position: absolute;
+        top: 0;
+        width: 0.5em;
+        height: 0.5em;
+        background: #ffc107;
       }
     }
     &[data-point='0'] {
@@ -160,7 +172,7 @@
           grid-column: ~"1/4";
           display: grid;
           border-color: #ffc107;
-          &::after {
+          &::before {
             grid-column: ~"1/3";
           }
         }
@@ -169,7 +181,7 @@
         [data-el='0'] {
           display: grid;
           border-color: #ffc107;
-          &::after {
+          &::before {
             grid-column: ~"1/3";
           }
         }
@@ -183,29 +195,41 @@
     }
     &[data-team='0'][data-point='1'] [data-el='0'],
     &[data-team='1'][data-point='-1'] [data-el='1'],
+    &[data-team='0'][data-point='-1'] [data-el='0'],
     {
       display: grid;
       grid-column: ~"1/2";
-      background: #007bff;
     }
-    &[data-team='0'][data-point='-1'] [data-el='0'] {
+    &[data-team='0'][data-point='-1'] [data-el='1'],
+    &[data-team='1'][data-point='1'] [data-el='0'],
+    &[data-team='1'][data-point='-1'] [data-el='0'],
+    {
       display: grid;
-      grid-column: ~"1/2";
-      border-color: #dc3545;
+      grid-column: ~"3/4";
     }
-
+    &[data-team='0'][data-point='1'] [data-el='0'],
+    &[data-team='1'][data-point='-1'] [data-el='1'],
     &[data-team='0'][data-point='-1'] [data-el='1'],
     &[data-team='1'][data-point='1'] [data-el='0'],
     {
-      display: grid;
-      grid-column: ~"3/4";
       background: #007bff;
     }
-    &[data-team='1'][data-point='-1'] [data-el='0']
+    &[data-team='0'][data-point='-1'] [data-el='0'],
+    &[data-team='1'][data-point='-1'] [data-el='0'],
     {
-      display: grid;
-      grid-column: ~"3/4";
       border-color: #dc3545;
+    }
+    &[data-serve-team='0'][data-serve-player='0']::after {
+      left: 0;
+    }
+    &[data-serve-team='1'][data-serve-player='1']::after {
+      right: 0;
+    }
+    &[data-serve-team='0'][data-serve-player='1']::after {
+      right: 56.55%;
+    }
+    &[data-serve-team='1'][data-serve-player='0']::after {
+      left: 56.55%;
     }
   }
   &-team {
@@ -411,8 +435,26 @@
         }
       }
     }
-    .game-history-entry span {
-      transform: scale(-1, 1);
+    .game-history-entry {
+      span {
+        transform: scale(-1, 1);
+      }
+      &[data-serve-team='0'][data-serve-player='0']::after {
+        right: 56.55%;
+        left: auto;
+      }
+      &[data-serve-team='1'][data-serve-player='1']::after {
+        left: 56.55%;
+        right: auto;
+      }
+      &[data-serve-team='0'][data-serve-player='1']::after {
+        left: 0;
+        right: auto;
+      }
+      &[data-serve-team='1'][data-serve-player='0']::after {
+        right: 0;
+        left: auto;
+      }
     }
     .game-score {
       button, span, p {

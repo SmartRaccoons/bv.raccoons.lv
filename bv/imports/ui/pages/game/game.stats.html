@@ -34,17 +34,15 @@
           {{/each}}
         </div>
         <div class='game-stats-data'>
-          Started:
           {{#if started}}
-            {{ format_date started }}<br />
-            Ended:
+            Started: {{ format_date started }}<br />
             {{#if ended }}
-              {{ format_date ended }} ({{ format_length game_length }})
+              Ended: {{ format_date ended }} ({{ format_length game_length }})
             {{else}}
-              In progress
+              Game is in progress
             {{/if}}
           {{else}}
-            Is not started
+            Game is not started
           {{/if}}
         </div>
       </div>

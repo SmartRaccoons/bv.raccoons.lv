@@ -268,11 +268,13 @@ Game.helpers({
     });
   },
   history_stats() {
-     return actions_default.filter((v)=> v.ev !== '').map((v)=>{
+     return [{ev: 'st', points: 0, text: 'Serve attempt'}].concat(actions_default).filter((v)=> v.ev !== '').map((v)=>{
       v.stats = [[0, 0], [0, 0]];
       this.sets_history.forEach((set)=>{
         set.forEach((point)=>{
-          if(v.ev === point.action && point.team.length === 2) {
+          if (v.ev === 'st' && point.point !== 0) {
+            v.stats[point.serve[0]][point.serve[1]]++
+          } else if(v.ev === point.action && point.team.length === 2) {
             v.stats[point.team[0]][point.team[1]]++;
           }
         });
