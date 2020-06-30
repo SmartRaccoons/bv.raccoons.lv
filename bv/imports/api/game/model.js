@@ -280,7 +280,27 @@ Game.helpers({
         });
       });
       return v;
-    }).filter((v)=> (v.stats[0][0] + v.stats[0][1] + v.stats[1][0] + v.stats[1][1]) > 0 );
+    })//.filter((v)=> (v.stats[0][0] + v.stats[0][1] + v.stats[1][0] + v.stats[1][1]) > 0 );
+  },
+  sidout_count() {
+    stats = [[0, 0], [0, 0]];
+    this.sets_history.forEach((set)=> {
+      set.forEach((point)=>{
+        if (point.point !== 0 && point.team.length === 2) {
+          receive = point.serve[0] === 0 ? 1 : 0;
+          stats[receive][1]++;
+          if ( ( point.serve[0] === point.team[0] && point.point === -1 ) || (receive === point.team[0] && point.point === 1) ) {
+            stats[receive][0]++;
+          }
+        }
+      });
+    });
+    return stats.map( (team)=> {
+      if (team[1] === 0) {
+        return 100;
+      }
+      return Math.round(team[0]*100/team[1]);
+    });
   },
   _serve_next() {
     this.serve[0] = (this.serve[0] + 1) % 2;

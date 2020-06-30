@@ -32,6 +32,18 @@
               </div>
             </div>
           {{/each}}
+            <div class='game-stats-recap-entry'>
+              <div class='game-stats-recap-entry-team'>
+                <span>{{ sidout_count.[0] }}%</span>
+              </div>
+              <div class='game-stats-recap-entry-action'
+                data-points='0'
+                data-action='Sideout'
+                ></div>
+              <div class='game-stats-recap-entry-team'>
+                <span>{{ sidout_count.[1] }}%</span>
+              </div>
+            </div>
         </div>
         <div class='game-stats-data'>
           {{#if started}}
