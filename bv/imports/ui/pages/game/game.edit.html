@@ -27,13 +27,13 @@
       <div class='game' {{ switch_attr switch}} data-serve='{{ serve_player }}' data-ended='{{ ended }}'>
         {{ > App_game_edit_team teams=teams team=teams_named.[0] team_id=0 owner=owner _id=_id score=sets_last.[0] info=info.[0] timeouts=timeouts.[0] history_last=history_last history_last_timeout=history_last_timeout.[0] serve_player=serve_player }}
         <div class='game-score'>
-          <button class='game-score-switch' data-highlight={{ switch_highlight }} data-counter={{ switches }}>switch</button>
+          <button class='game-score-switch' data-highlight={{ switch_highlight.[0] }} data-highlight-left={{ switch_highlight.[1] }} data-counter={{ switches }}>switch</button>
           <div class='game-score-sets'>
             <span data-team='0'>{{ sets_result.[0] }}</span>:<span data-team='1'>{{ sets_result.[1] }}</span>
           </div>
-          {{#if edited}}
-            <button class='game-score-undo'>undo</button>
-          {{/if}}
+
+            <button disabled={{ history_empty }} class='game-score-undo'>undo</button>
+
           {{#each set in sets_played}}
             <div class='game-score-history'>
               <span data-team='0'>{{ set.[0] }}</span>:<span data-team='1'>{{ set.[1] }}</span>

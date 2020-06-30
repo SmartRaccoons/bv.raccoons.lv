@@ -119,27 +119,38 @@ Game.helpers({
   switch_highlight() {
     let history = this.sets_history[this.sets.length - 1];
     let history_switched = history && history.length > 0 && history[history.length-1].action === 'SW';
+    let history_switched_any = history && history.length > 0 && history.filter((entry)=> entry.action === 'SW').length > 0;
     let points = this.sets[this.sets.length - 1];
     let points_total = points[0] + points[1];
     let points_max = this._set_points_max();
+    let points_players_max = Math.max(points[0], points[1]);
+    if (history_switched) {
+      return [ false ];
+    }
     if (this.settings.switch === 'set') {
-      return this.sets.length > 1 && points_total === 0 && !history_switched;
+      return [
+        this.sets.length > 1 && points_total === 0,
+        points_max - points_players_max
+      ];
     }
     if (points_total === 0) {
-      return false;
+      return [ false ];
     }
-    if (this.settings.switch === 'sum 1/3' &&
-      !(points_total % Math.ceil(points_max / 3) === 0)) {
-      return false;
+    if (this.settings.switch === 'sum 1/3') {
+      let third_points = Math.ceil(points_max / 3);
+      return [
+        points_total % third_points === 0,
+        third_points - (points_total % third_points )
+      ];
     }
-    if (this.settings.switch === 'first 1/2' &&
-      !(
-        ( ( points[0] % Math.ceil(points_max / 2) === 0 ) && points[0] > points[1]) ||
-        ( ( points[1] % Math.ceil(points_max / 2) === 0 ) && points[1] > points[0])
-      ) ) {
-      return false;
+    if (this.settings.switch === 'first 1/2') {
+      let half_points = Math.ceil(points_max / 2);
+      return [
+        !history_switched_any && points_players_max % half_points === 0,
+        history_switched_any ? points_max - points_players_max : half_points - points_players_max
+      ];
     }
-    return !history_switched;
+    return [ false ]
   },
   sets_update(params) {
     if (this.ended) {
@@ -322,6 +333,7 @@ Game.helpers({
     return this.serve[0] * 2 + this.serve[1];
   },
   edited() { return this.sets_history[0].length > 0 },
+  history_empty() { return this.sets_history[0].length === 0 },
   undo() {
     if (!this.edited()) {
       return;

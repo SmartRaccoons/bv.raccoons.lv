@@ -386,6 +386,19 @@
       height: 4em;
       width: 100%;
     }
+    &-switch {
+      &:not([data-highlight])[data-highlight-left] {
+        &::before {
+          content: attr(data-highlight-left);
+          display: block;
+          position: absolute;
+          bottom: 0;
+          right: 0;
+          padding: 0.1em 0.2em;
+          font-size: 0.6em;
+        }
+      }
+    }
     &-sets, &-history {
       text-align: center;
       font-size: 3em;
