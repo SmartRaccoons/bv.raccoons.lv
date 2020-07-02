@@ -119,7 +119,7 @@ Game.helpers({
   switch_highlight() {
     let history = this.sets_history[this.sets.length - 1];
     let history_switched = history && history.length > 0 && history[history.length-1].action === 'SW';
-    let history_switched_any = history && history.length > 0 && history.filter((entry)=> entry.action === 'SW').length > 0;
+    let history_switched_any = history && history.length > 0 && history.filter((entry, i)=> entry.action === 'SW' && i > 0).length > 0;
     let points = this.sets[this.sets.length - 1];
     let points_total = points[0] + points[1];
     let points_max = this._set_points_max();
@@ -147,7 +147,7 @@ Game.helpers({
       let half_points = Math.ceil(points_max / 2);
       return [
         !history_switched_any && points_players_max % half_points === 0,
-        history_switched_any ? points_max - points_players_max : half_points - points_players_max
+        points_players_max >= half_points ? points_max - points_players_max : half_points - points_players_max
       ];
     }
     return [ false ]
