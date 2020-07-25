@@ -358,7 +358,7 @@ Game.helpers({
       attr_update.switch = !this.switch;
     }
     if (this.serve[0] !== last_history.serve[0]) {
-      this.serve_order[opponent] = (this.serve_order[opponent] + 1) % 2;
+      this.serve_order[this.serve[0]] = (this.serve[1] + 1) % 2;
     }
     if (this.ended) {
       attr_update.ended = null;
