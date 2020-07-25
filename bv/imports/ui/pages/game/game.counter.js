@@ -10,12 +10,22 @@ import { game_counter_helpers } from './game.common';
 
 
 let settings = [
-  {name: 'settings_switching', text: 'Switching', default: true},
+  {name: 'settings_switching', text: 'Switching', default: false},
   {name: 'settings_reverse_switch', text: 'Reverse switch', default: false},
-  {name: 'settings_follow', text: 'Follow next game', default: false},
+  {name: 'settings_follow', text: 'Follow next game', default: true},
 ];
 settings.forEach((v)=>{
   Session.setDefault(v.name, v.default);
+});
+
+Template.App_game_counter_last.onCreated(function () {
+  this.autorun(() => {
+    this.subscribe('game.public');
+    let game = Game.findOne({}, { sort: {created: -1}} );
+    if (game) {
+      FlowRouter.go('App.game.counter', { id: game.id });
+    }
+  });
 });
 
 

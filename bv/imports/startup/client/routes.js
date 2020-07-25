@@ -32,6 +32,12 @@ app_public.route('/', {
     });
   },
 });
+app_public.route('/last', {
+  name: 'App.game.counter_last',
+  action(params) {
+    BlazeLayout.render('App_game_counter_last');
+  }
+});
 app_public.route('/:id', {
   name: 'App.game.counter',
   action(params) {
