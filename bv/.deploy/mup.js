@@ -26,13 +26,14 @@ module.exports = {
     },
 
     docker: {
-      image: 'abernix/meteord:node-8.4.0-base',
+      // image: 'zodern/meteor:root',
+      image: 'abernix/meteord:node-12-base',
     },
     enableUploadProgressBar: true
   },
 
   mongo: {
-    version: '3.4.1',
+    version: '4.4.12',
     servers: {
       one: {}
     }
